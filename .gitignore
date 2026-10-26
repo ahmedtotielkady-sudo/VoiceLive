@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+node_modules/
+android/.gradle/
+android/local.properties
+*.jks
+*.keystore
+build-error.log

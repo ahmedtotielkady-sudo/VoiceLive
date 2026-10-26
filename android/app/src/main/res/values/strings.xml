@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VoiceLive</string>
+    <string name="title_activity_main">VoiceLive</string>
+    <string name="package_name">com.voicelive.app</string>
+    <string name="custom_url_scheme">com.voicelive.app</string>
+</resources>

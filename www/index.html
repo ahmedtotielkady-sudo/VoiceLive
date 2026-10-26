@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الصوت والدردشة - Voice Live</title>
+    <!-- Tailwind CSS CDN للتصميم الراقي -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+        }
+        .speaking {
+            animation: pulse-ring 2s infinite;
+        }
+    </style>
+<style>
+
+/* VL-TRANSPARENT-CHAT */
+#chatMessages .message,
+#chatMessages .chat-message,
+#chatMessages .message-item,
+#chatMessages .chat-bubble,
+.chat-message,
+.chat-bubble,
+.message-bubble,
+.room-message,
+.chat-msg {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+#chatMessages .message *,
+#chatMessages .chat-message *,
+#chatMessages .message-item *,
+#chatMessages .chat-bubble *,
+.chat-message *,
+.chat-bubble *,
+.message-bubble *,
+.room-message *,
+.chat-msg * {
+    color: #ffffff !important;
+}
+
+#chatMessages,
+#chatMessages .messages-list {
+    background: transparent !important;
+}
+
+#chatInput,
+.chat-input,
+.message-input {
+    color: #ffffff !important;
+}
+
+#chatInput::placeholder,
+.chat-input::placeholder,
+.message-input::placeholder {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+/* END VL-TRANSPARENT-CHAT */
+
+</style>
+<style>
+
+/* VL LOGIN SCREEN */
+.vl-auth {
+    background: linear-gradient(165deg, #55e52f 0%, #32d96b 42%, #10c6ad 100%);
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    isolation: isolate;
+}
+.vl-login-content {
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 520px;
+    min-height: 100%;
+    margin: auto;
+    padding: max(72px, env(safe-area-inset-top)) 22px
+             max(28px, env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.vl-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin: 55px 0 38px;
+    color: #fff72f;
+    font-size: clamp(66px, 18vw, 100px);
+    line-height: 1.1;
+    font-weight: 900;
+    text-shadow: 0 3px 0 rgba(0,0,0,.04);
+}
+.vl-logo i {
+    color: #171717;
+    font-size: .45em;
+    background: #fff72f;
+    border-radius: 50%;
+    width: 1.15em;
+    height: 1.15em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.vl-tagline {
+    text-align: center;
+    font-size: clamp(21px, 5.3vw, 29px);
+    font-weight: 800;
+    line-height: 1.9;
+    margin: 0 0 34px;
+    text-shadow: 0 1px 2px #26bd76;
+}
+.vl-social-buttons {
+    width: 100%;
+    display: grid;
+    gap: 18px;
+}
+.vl-social {
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 12px 10px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: #fff;
+    color: #333;
+    box-shadow: 0 4px 12px #168c6920;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: inherit;
+    font-size: clamp(15px, 4.1vw, 21px);
+    font-weight: 800;
+    text-align: center;
+}
+.vl-facebook, .vl-google {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 37px;
+    font-weight: 900;
+}
+.vl-facebook { background: #3978e8; color: white; }
+.vl-google {
+    color: #4285f4;
+    background: white;
+    text-shadow: 2px 1px #34a853, -1px -2px #ea4335;
+}
+.vl-shortcuts {
+    display: flex;
+    justify-content: center;
+    gap: 38px;
+    margin: 60px 0 35px;
+}
+.vl-shortcuts button {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 0;
+    background: white;
+    color: #42b9e8;
+    font-size: 36px;
+    display: grid;
+    place-items: center;
+}
+.vl-account {
+    width: 100%;
+    max-width: 400px;
+    color: white;
+    text-align: center;
+    margin: 0 auto 24px;
+}
+.vl-account summary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 30px;
+    background: #ffffff24;
+    font-size: 14px;
+    font-weight: 700;
+}
+.vl-form {
+    margin-top: 16px;
+    text-align: right;
+    display: grid;
+    gap: 9px;
+}
+.vl-form label { font-size: 13px; font-weight: 700; }
+.vl-form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 15px;
+    border-radius: 14px;
+    border: 1px solid #ffffff80;
+    background: #ffffffed;
+    color: #222;
+    outline: none;
+    font-family: inherit;
+}
+.vl-member {
+    background: #ffffff30;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 13px;
+}
+.vl-submit {
+    border: 0;
+    border-radius: 30px;
+    padding: 14px;
+    background: #fff72f;
+    color: #222;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 16px;
+}
+.vl-legal {
+    margin-top: auto;
+    padding-top: 28px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 2.2;
+    color: white;
+}
+.vl-legal a {
+    color: #438bc7;
+    text-decoration: underline;
+    font-weight: 700;
+}
+.vl-decor {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    color: #fff;
+    opacity: .14;
+}
+.vl-note { top: 12%; left: 12%; font-size: 70px; transform: rotate(-20deg); }
+.vl-star { bottom: 20%; right: 12%; font-size: 75px; color: #fff72f; }
+.vl-game { top: 35%; right: 8%; font-size: 145px; transform: rotate(-12deg); }
+.vl-mic { top: 22%; left: 7%; font-size: 105px; transform: rotate(12deg); }
+@media (max-height: 740px) {
+    .vl-login-content { padding-top: 48px; }
+    .vl-logo { margin: 24px 0 20px; font-size: 65px; }
+    .vl-tagline { margin-bottom: 22px; font-size: 21px; }
+    .vl-social { min-height: 62px; }
+    .vl-facebook, .vl-google { width: 46px; height: 46px; flex-basis: 46px; }
+    .vl-shortcuts { margin: 32px 0 22px; gap: 25px; }
+    .vl-shortcuts button { width: 62px; height: 62px; font-size: 29px; }
+}
+/* END VL LOGIN SCREEN */
+
+</style>
+</head>
+<body class="bg-slate-950 text-slate-100 select-none pb-20">
+
+    <!-- نافذة الإشعارات التنبيهية (Toast Notification) -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-5">
+        <div id="toast-body" class="px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 bg-slate-900 text-sm font-bold">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-msg">تمت العملية بنجاح</span>
+        </div>
+    </div>
+
+    <!-- شاشة الدخول الجديدة -->
+    <div id="auth-modal" class="vl-auth fixed inset-0 z-50 overflow-y-auto">
+        <div class="vl-decor vl-note">♪</div>
+        <div class="vl-decor vl-star">★</div>
+        <div class="vl-decor vl-game"><i class="fa-solid fa-gamepad"></i></div>
+        <div class="vl-decor vl-mic"><i class="fa-solid fa-microphone-lines"></i></div>
+
+        <div class="vl-login-content">
+            <div class="vl-logo" aria-label="صوتي شات">
+                <span>صوتي</span><i class="fa-solid fa-comment-dots"></i>
+            </div>
+
+            <h2 class="vl-tagline">
+                المحادثة الصوتية، العب الألعاب،
+                <br>اعمل صداقات
+            </h2>
+
+            <details class="vl-account" open>
+                <summary>الدخول باسم مستخدم</summary>
+                <form id="auth-form" onsubmit="handleAuth(event)" class="vl-form">
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" class="vl-submit" onclick="setAuthMode('login')">تسجيل الدخول</button>
+                        <button type="button" class="vl-submit" onclick="setAuthMode('register')">إنشاء حساب</button>
+                    </div>
+                    <label for="auth-username">اسم المستخدم</label>
+                    <input type="text" id="auth-username" required minlength="3" maxlength="30" autocomplete="username" placeholder="اكتب اسم المستخدم">
+                    <label for="auth-password">كلمة المرور</label>
+                    <input type="password" id="auth-password" required minlength="8" autocomplete="current-password" placeholder="8 أحرف على الأقل">
+                    <div id="auth-confirm-wrap" class="hidden">
+                        <label for="auth-confirm-password">تأكيد كلمة المرور</label>
+                        <input type="password" id="auth-confirm-password" minlength="8" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور">
+                    </div>
+<p class="vl-member"><i class="fa-solid fa-user"></i> نوع الحساب: عضو</p>
+                    <button type="submit" id="auth-submit" class="vl-submit">تسجيل الدخول</button>
+                    <p class="text-xs opacity-70 mt-3">نسخة تجريبية: الحسابات محفوظة على هذا الجهاز فقط.</p>
+                </form>
+            </details>
+
+            <div class="vl-social-buttons">
+                <button type="button" class="vl-social"
+                    onclick="showToast('تسجيل الدخول بفيسبوك يحتاج ربط الخدمة أولاً','info')">
+                    <span>تسجيل الدخول بواسطة<br>Facebook</span>
+                    <span class="vl-facebook"><i class="fa-brands fa-facebook-f"></i></span>
+                </button>
+
+                <button type="button" class="vl-social"
+                    onclick="showToast('تسجيل الدخول بجوجل يحتاج ربط الخدمة أولاً','info')">
+                    <span>تسجيل الدخول بواسطة Google</span>
+                    <span class="vl-google">G</span>
+                </button>
+            </div>
+
+            <div class="vl-shortcuts">
+                <button type="button" aria-label="تويتر"
+                    onclick="showToast('يمكن إضافة رابط حساب التواصل لاحقاً','info')">
+                    <i class="fa-brands fa-twitter"></i>
+                </button>
+                <button type="button" aria-label="الدخول"
+                    onclick="document.getElementById('auth-username').focus();document.getElementById('auth-form').scrollIntoView({behavior:'smooth',block:'center'})">
+                    <i class="fa-solid fa-phone"></i>
+                </button>
+                <button type="button" aria-label="حساب جديد"
+                    onclick="document.getElementById('auth-username').focus();document.getElementById('auth-form').scrollIntoView({behavior:'smooth',block:'center'})">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </button>
+            </div>
+
+
+
+            <p class="vl-legal">
+                بالمتابعة، فإنك توافق على
+                <a href="#" onclick="showToast('سيتم إضافة شروط الخدمة','info');return false">شروط الخدمة</a>
+                و
+                <a href="#" onclick="showToast('سيتم إضافة سياسة الخصوصية','info');return false">سياسة الخصوصية</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- شريط الرأس العلوي (Header) -->
+    <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80" 
+                 class="w-10 h-10 rounded-full border-2 border-violet-500 object-cover" alt="User">
+            <div>
+                <h1 id="nav-user-name" class="font-bold text-sm leading-tight">مستخدم جديد</h1>
+                <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                    <span id="nav-user-id" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">ID: 88492</span>
+                    <span id="nav-user-badge" class="bg-violet-600/20 text-violet-400 text-[10px] px-1.5 py-0.5 rounded border border-violet-500/30">عضو</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- محفظة العملات المباشرة -->
+        <button onclick="switchView('vip')" class="bg-slate-800/80 hover:bg-slate-800 border border-amber-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 transition active:scale-95">
+            <i class="fa-solid fa-coins text-amber-400 text-sm animate-bounce"></i>
+            <span id="nav-coins-count" class="font-extrabold text-amber-400 text-sm">1,500</span>
+            <i class="fa-solid fa-circle-plus text-xs text-slate-400"></i>
+        </button>
+    </header>
+
+    <!-- مساحة الصفحات الرئيسية المتغيرة ديناميكياً -->
+    <main class="max-w-md mx-auto p-4">
+
+        <!-- 1. صفحة استكشاف الغرف (Home / Rooms) -->
+        <section id="view-home" class="page-view space-y-4">
+            <!-- لافتة ترويجية -->
+            
+
+            <!-- أزرار التصفح والبحث وإنشاء غرفة -->
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-500 text-xs"></i>
+                    <input type="text" placeholder="ابحث باسم الغرفة أو الـ ID..." 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pr-9 pl-3 text-xs focus:outline-none focus:border-violet-500">
+                </div>
+                <button onclick="createRoomPrompt()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-violet-600/30">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>إنشاء غرفة</span>
+                </button>
+            </div>
+
+            <!-- تصنيفات الغرف -->
+            <div class="flex gap-2 overflow-x-auto pb-1 text-xs custom-scroll">
+                <button class="bg-violet-600 text-white px-3 py-1.5 rounded-xl font-bold shrink-0">🔥 الشائعة</button>
+                <button class="bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1.5 rounded-xl font-semibold shrink-0 hover:text-white">🎵 طرب وشعر</button>
+                <button class="bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1.5 rounded-xl font-semibold shrink-0 hover:text-white">🎮 ألعاب ومسابقات</button>
+                <button class="bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1.5 rounded-xl font-semibold shrink-0 hover:text-white">🌍 تعارف وسوالف</button>
+            </div>
+
+            <!-- قائمة الغرف الصوتية النشطة -->
+            <div id="rooms-list" class="space-y-3">
+                <!-- يتم حقن الغرف بالـ JS -->
+            </div>
+        </section>
+
+        <!-- 2. صفحة داخل الغرفة الصوتية (Active Voice Room) -->
+        <section id="view-room" class="page-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-2xl relative overflow-hidden">
+                <!-- رأس الغرفة -->
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-fuchsia-600 to-violet-600 flex items-center justify-center font-black">
+                            <i class="fa-solid fa-volume-high text-sm"></i>
+                        </div>
+                        <div>
+                            <h2 id="current-room-title" class="font-bold text-sm">غرفة ليالي الأنس</h2>
+                            <p id="current-room-host" class="text-[11px] text-slate-400">المالك: كابتن ماجد | ID: 3021</p>
+                        </div>
+                    </div>
+                    <button onclick="leaveRoom()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        خروج
+                    </button>
+                </div>
+
+                <!-- مسرح المايكات (8 مقاعد صوتية) -->
+                <div class="grid grid-cols-4 gap-3 py-6" id="mics-stage">
+                    <!-- تتولى الـ JS ملء المقاعد الـ 8 -->
+                </div>
+
+                <!-- صندوق الدردشة الحية داخل الغرفة -->
+                <div class="border-t border-slate-800 pt-3">
+                    <div id="room-messages" class="h-44 overflow-y-auto space-y-2 text-xs custom-scroll pr-1 pb-2">
+                        <div class="bg-violet-950/40 border border-violet-800/30 text-violet-300 p-2 rounded-xl text-[11px]">
+                            🔔 مرحباً بك في الروم الصوتي! التزم بالاحترام وتجنب الإساءة للآخرين.
+                        </div>
+                    </div>
+
+                    <!-- إرسال رسالة وهدايا -->
+                    <div class="flex items-center gap-2 mt-3">
+                        <button onclick="toggleGiftModal()" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition">
+                            <i class="fa-solid fa-gift text-base"></i>
+                        </button>
+                        <input type="text" id="room-chat-input" placeholder="اكتب رسالة للجميع..." 
+                               onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                               class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-violet-500">
+                        <button onclick="sendChatMessage()" class="w-10 h-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition active:scale-95">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- أزرار المايك والكتم للمقعد الحالي -->
+                    <div class="flex items-center justify-around mt-4 pt-3 border-t border-slate-800/60">
+                        <button id="mic-toggle-btn" onclick="toggleMyMic()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-full text-xs font-bold transition">
+                            <i id="mic-toggle-icon" class="fa-solid fa-microphone text-emerald-400"></i>
+                            <span id="mic-toggle-text">المايك مفتوح</span>
+                        </button>
+                        <button onclick="takeSeat(0)" class="text-xs text-violet-400 hover:underline">
+                            <i class="fa-solid fa-chair ml-1"></i>الصعود للمايك الرئيسي
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. نافذة الهدايا (Gift Modal) -->
+        <div id="gift-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end justify-center p-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 w-full max-w-sm mb-16 shadow-2xl animate-fade-in">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-gift text-amber-400"></i> إرسال هدية للمتحدث
+                    </h3>
+                    <button onclick="toggleGiftModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <button onclick="sendGift('وردة حمراء 🌹', 20)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">🌹</span>
+                        <span class="text-xs font-bold">وردة</span>
+                        <span class="text-[10px] text-amber-400 font-bold">20 عملة</span>
+                    </button>
+                    <button onclick="sendGift('قلب نيون 💖', 50)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">💖</span>
+                        <span class="text-xs font-bold">قلب نيون</span>
+                        <span class="text-[10px] text-amber-400 font-bold">50 عملة</span>
+                    </button>
+                    <button onclick="sendGift('سيارة رياضية 🏎️', 200)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">🏎️</span>
+                        <span class="text-xs font-bold">فيراري</span>
+                        <span class="text-[10px] text-amber-400 font-bold">200 عملة</span>
+                    </button>
+                    <button onclick="sendGift('تاج الملوك 👑', 500)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">👑</span>
+                        <span class="text-xs font-bold">تاج ذهبي</span>
+                        <span class="text-[10px] text-amber-400 font-bold">500 عملة</span>
+                    </button>
+                    <button onclick="sendGift('صاروخ فضاء 🚀', 1000)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">🚀</span>
+                        <span class="text-xs font-bold">صاروخ</span>
+                        <span class="text-[10px] text-amber-400 font-bold">1,000 عملة</span>
+                    </button>
+                    <button onclick="sendGift('قصر ملكي 🏰', 2500)" class="bg-slate-950 border border-slate-800 hover:border-violet-500 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition">
+                        <span class="text-2xl">🏰</span>
+                        <span class="text-xs font-bold">قصر ملكي</span>
+                        <span class="text-[10px] text-amber-400 font-bold">2,500 عملة</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. صفحة شحن العملات (Coins Store) -->
+        <section id="view-store" class="page-view hidden space-y-4">
+            <div class="bg-gradient-to-tr from-amber-500/20 via-slate-900 to-slate-900 border border-amber-500/30 rounded-3xl p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 font-semibold">رصيدك الحالي</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <i class="fa-solid fa-coins text-amber-400 text-2xl"></i>
+                            <span id="store-coins-count" class="text-3xl font-black text-amber-400">1,500</span>
+                        </div>
+                    </div>
+                    <span class="bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs px-3 py-1 rounded-full font-bold">حساب موثق</span>
+                </div>
+            </div>
+
+            
+            <div class="space-y-3">
+                <h3 class="font-bold text-base">💰 اختر باقة الشحن</h3>
+                <p class="text-xs text-slate-400">كل 100 جنيه = 110,000 عملة</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="selectRechargePack(100)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">🪙</span><b>100 جنيه</b><span class="block text-amber-400 text-sm mt-1">110,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(200)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">💰</span><b>200 جنيه</b><span class="block text-amber-400 text-sm mt-1">220,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(300)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">💎</span><b>300 جنيه</b><span class="block text-amber-400 text-sm mt-1">330,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(500)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">👑</span><b>500 جنيه</b><span class="block text-amber-400 text-sm mt-1">550,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(1000)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">🏆</span><b>1,000 جنيه</b><span class="block text-amber-400 text-sm mt-1">1,100,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(2000)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">✨</span><b>2,000 جنيه</b><span class="block text-amber-400 text-sm mt-1">2,200,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(3000)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">🎁</span><b>3,000 جنيه</b><span class="block text-amber-400 text-sm mt-1">3,300,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(5000)" class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center">
+                        <span class="block text-3xl mb-2">💠</span><b>5,000 جنيه</b><span class="block text-amber-400 text-sm mt-1">5,500,000 عملة</span>
+                    </button>
+                    <button type="button" onclick="selectRechargePack(10000)" class="col-span-2 bg-gradient-to-r from-amber-500/20 to-slate-900 border border-amber-500/50 rounded-2xl p-4 text-center">
+                        <span class="block text-4xl mb-2">👑</span><b>10,000 جنيه</b><span class="block text-amber-400 text-sm mt-1">11,000,000 عملة</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <h3 class="font-bold">📱 طلب شحن فودافون كاش</h3>
+                <p class="text-xs text-slate-400">حوّل المبلغ إلى رقم المحفظة الذي تحدده الإدارة، ثم أرسل بيانات التحويل للمراجعة.</p>
+                <div class="bg-slate-950 rounded-xl p-3">
+                    <span class="block text-xs text-slate-400 mb-2">رقم المحفظة</span>
+                    <div class="flex items-center gap-2">
+                        <span id="vodafone-cash-number" class="text-amber-400 font-bold flex-1">لم يُحدد رقم المحفظة بعد</span>
+                        <button type="button" onclick="copyVodafoneNumber()" class="bg-slate-800 rounded-lg px-3 py-2 text-xs">نسخ</button>
+                    </div>
+                </div>
+                <form id="recharge-request-form" class="space-y-3" onsubmit="submitRechargeRequest(event)">
+                    <label class="block text-xs text-slate-400">المبلغ بالجنيه المصري
+                        <input id="recharge-amount" type="number" min="100" step="100" required oninput="updateRechargePreview()" placeholder="اختر باقة أو اكتب المبلغ" class="mt-1 w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-white">
+                    </label>
+                    <div id="recharge-coins-preview" class="text-sm text-amber-400 font-bold">ستحصل على 110,000 عملة لكل 100 جنيه</div>
+                    <label class="block text-xs text-slate-400">رقم المحفظة التي حوّلت منها
+                        <input id="recharge-sender" type="tel" required placeholder="01xxxxxxxxx" dir="ltr" class="mt-1 w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-white">
+                    </label>
+                    <label class="block text-xs text-slate-400">رقم العملية (اختياري)
+                        <input id="recharge-reference" type="text" placeholder="رقم مرجع التحويل" class="mt-1 w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-white">
+                    </label>
+                    <label class="block text-xs text-slate-400">صورة إيصال التحويل
+                        <input id="recharge-receipt" type="file" accept="image/*" required class="mt-1 w-full text-xs text-slate-300">
+                    </label>
+                    <button type="submit" class="w-full bg-amber-400 text-slate-950 font-black rounded-xl p-3">إرسال طلب الشحن للمراجعة</button>
+                </form>
+                <p class="text-[11px] text-slate-500">إرسال الطلب لا يضيف العملات. يجب أن يراجع المالك التحويل ويوافق عليه.</p>
+                <div id="recharge-requests-list" class="text-xs text-slate-400"></div>
+            </div>
+</section>
+
+        <!-- 5. صفحة نظام الوكالات (Agencies Hub) -->
+        <section id="view-agencies" class="page-view hidden space-y-4">
+            <div class="bg-gradient-to-r from-violet-900/60 to-purple-900/60 border border-violet-700/40 rounded-3xl p-5">
+                <h2 class="text-lg font-black mb-1">مركز وكالات البث الصوتي</h2>
+                <p class="text-xs text-slate-300">انضم لوكالة رسمية أو أسس وكالتك لتحقيق دخل شهري من ساعات البث والهدايا.</p>
+                <div class="mt-4 flex gap-2">
+                    <button onclick="agencyJoinAction()" class="bg-white text-slate-950 font-bold text-xs px-4 py-2 rounded-xl transition hover:bg-slate-200 active:scale-95">
+                        طلب انضمام لوكالة
+                    </button>
+                    <button onclick="showToast('تم إرسال شروط تأسيس وكالة إلى ملفك', 'info')" class="bg-violet-800/80 hover:bg-violet-800 text-white font-bold text-xs px-4 py-2 rounded-xl transition border border-violet-600/40">
+                        شروط التأسيس
+                    </button>
+                </div>
+            </div>
+
+            <!-- إحصائيات الوكالة الحالية -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span class="text-slate-400 text-xs">عمولة الوكالة الحالية</span>
+                    <h3 class="text-xl font-bold text-emerald-400 mt-1">25% - 40%</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span class="text-slate-400 text-xs">ساعات البث المستهدفة</span>
+                    <h3 class="text-xl font-bold text-violet-400 mt-1">45 ساعة / شهر</h3>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-300">أقوى الوكالات المعتمدة</h3>
+            <div class="space-y-2">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center font-bold">🦅</div>
+                        <div>
+                            <h4 class="font-bold text-xs">وكالة الصقور الذهبية</h4>
+                            <p class="text-[10px] text-slate-400">كود: AG-909 • المضيفين: 142</p>
+                        </div>
+                    </div>
+                    <button onclick="applyToSpecificAgency('الصقور الذهبية')" class="bg-violet-600/20 hover:bg-violet-600 text-violet-400 hover:text-white border border-violet-500/30 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+                        تقديم
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-pink-600/20 text-pink-400 flex items-center justify-center font-bold">👑</div>
+                        <div>
+                            <h4 class="font-bold text-xs">وكالة توب ستار الخليج</h4>
+                            <p class="text-[10px] text-slate-400">كود: AG-411 • المضيفين: 320</p>
+                        </div>
+                    </div>
+                    <button onclick="applyToSpecificAgency('توب ستار الخليج')" class="bg-violet-600/20 hover:bg-violet-600 text-violet-400 hover:text-white border border-violet-500/30 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+                        تقديم
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. صفحة لوحة تحكم المالك (Admin Dashboard) -->
+        <section id="view-admin" class="page-view hidden space-y-4">
+            <div class="bg-red-950/30 border border-red-500/30 rounded-3xl p-4">
+                <div class="flex items-center gap-2 text-red-400 font-black text-sm">
+                    <i class="fa-solid fa-user-shield text-base"></i>
+                    <span>لوحة تحكم مالك السيرفر والتطبيق (Super Admin)</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">تحكم فوري في الغرف النشطة، حظر المستخدمين، وتوزيع العملات.</p>
+            </div>
+
+            <!-- إحصائيات السيرفر -->
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl">
+                    <span class="text-[10px] text-slate-400">المستخدمين</span>
+                    <p class="text-base font-black text-white mt-1">1,482</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl">
+                    <span class="text-[10px] text-slate-400">الغرف النشطة</span>
+                    <p class="text-base font-black text-emerald-400 mt-1">24</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl">
+                    <span class="text-[10px] text-slate-400">حجم الشحن</span>
+                    <p class="text-base font-black text-amber-400 mt-1">$4,920</p>
+                </div>
+            </div>
+
+            <!-- إجراءات المالك السريعة -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <h3 class="text-xs font-bold text-slate-300">أدوات الإدارة والتحكم</h3>
+                
+                <div class="flex flex-col gap-2">
+                    <button onclick="adminGiftCoinsAll()" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-gift"></i>
+                        توزيع 500 عملة مجانية لكل الأعضاء المتصلين
+                    </button>
+                    <button onclick="adminToggleSystemMaintenance()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-wrench"></i>
+                        تفعيل / تعطيل وضع صيانة السيرفر
+                    </button>
+                </div>
+            </div>
+
+            <!-- قائمة الحظر السريع للمالك -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                <h3 class="text-xs font-bold text-slate-300 mb-2">إدارة المستخدمين والمخالفين</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center p-2 bg-slate-950 rounded-xl">
+                        <span>مستخدم مخالف (ID: 9021)</span>
+                        <button onclick="adminBanUser('9021')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition">
+                            حظر نهائي
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-slate-950 rounded-xl">
+                        <span>مستخدم مزعج (ID: 4182)</span>
+                        <button onclick="adminBanUser('4182')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition">
+                            كتم من الغرف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. صفحة الملف الشخصي (Profile) -->
+        <section id="view-profile" class="page-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 text-center relative overflow-hidden">
+                <img id="profile-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" 
+                     class="w-20 h-20 rounded-full border-4 border-violet-600 mx-auto object-cover mb-3 shadow-xl">
+                <h2 id="profile-name" class="font-extrabold text-lg">مستخدم جديد</h2>
+                <p id="profile-id" class="text-xs text-slate-400">ID: 88492</p>
+
+                <div class="flex justify-center gap-2 mt-3">
+                    <span id="profile-role-tag" class="bg-violet-600/20 text-violet-400 border border-violet-500/30 text-xs px-3 py-0.5 rounded-full font-bold">عضو</span>
+                    <span class="bg-amber-400/20 text-amber-400 border border-amber-400/30 text-xs px-3 py-0.5 rounded-full font-bold">المستوى 12</span>
+                </div>
+            </div>
+
+            <!-- مركز الحساب الشامل -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="switchView('store')" class="bg-slate-900 border border-amber-500/20 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-coins text-amber-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">شحن العملات</div>
+                    <div class="text-[10px] text-slate-400 mt-1">المحفظة والهدايا</div>
+                </button>
+                <button onclick="switchView('privacy')" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">الخصوصية</div>
+                    <div class="text-[10px] text-slate-400 mt-1">أمان الحساب</div>
+                </button>
+                <button onclick="switchView('agencies')" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-building text-violet-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">الوكالات</div>
+                    <div class="text-[10px] text-slate-400 mt-1">إدارة الوكالات والمضيفين</div>
+                </button>
+                <button onclick="showToast('إحصائيات أداء المضيف ستتوفر بعد ربط بيانات الغرف','info')" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-chart-line text-sky-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">أداء المضيف</div>
+                    <div class="text-[10px] text-slate-400 mt-1">الإحصائيات والنشاط</div>
+                </button>
+                <button onclick="switchView('vip')" class="bg-slate-900 border border-amber-500/20 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-crown text-amber-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">عضوية VIP</div>
+                    <div class="text-[10px] text-slate-400 mt-1">المستويات والمميزات</div>
+                </button>
+                <button onclick="showToast('سيتم عرض المميزات المتاحة هنا','info')" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-right hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-pink-400 text-xl"></i>
+                    <div class="font-bold mt-3 text-sm">المميزات</div>
+                    <div class="text-[10px] text-slate-400 mt-1">اكتشف خدمات التطبيق</div>
+                </button>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden divide-y divide-slate-800 text-xs font-semibold">
+                <button onclick="showToast('صوتنا — تطبيق للدردشة والتواصل الصوتي','info')" class="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-sky-400"></i> من نحن</span>
+                    <i class="fa-solid fa-chevron-left text-slate-500"></i>
+                </button>
+                <button onclick="showToast('فريق الدعم المباشر قيد التجهيز','info')" class="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-headset text-emerald-400"></i> التواصل مع فريق الدعم</span>
+                    <i class="fa-solid fa-chevron-left text-slate-500"></i>
+                </button>
+                <button onclick="openAuthModal()" class="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 text-amber-400 transition">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-user-pen"></i> تعديل بيانات الحساب</span>
+                    <i class="fa-solid fa-chevron-left text-slate-500"></i>
+                </button>
+                <button onclick="logoutAction()" class="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 text-red-400 transition">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-power-off"></i> تسجيل الخروج</span>
+                    <i class="fa-solid fa-chevron-left text-slate-500"></i>
+                </button>
+            </div>
+        </section>
+
+        
+<section id="view-vip" class="page-view hidden space-y-4">
+  <div class="flex items-center gap-3">
+    <button onclick="switchView('profile')" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800" aria-label="رجوع">
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+    <div>
+      <h2 class="text-xl font-extrabold text-amber-400"><i class="fa-solid fa-crown"></i> عضوية VIP</h2>
+      <p class="text-xs text-slate-400">اختار المستوى وشوف سعره بالعملات</p>
+    </div>
+  </div>
+
+  <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4">
+    <div class="text-sm text-slate-400">المستوى الحالي المسجل على هذا الجهاز</div>
+    <div id="vip-current-level" class="text-2xl font-extrabold text-amber-400 mt-1">VIP 0</div>
+  </div>
+
+  <div id="vip-level-list" class="grid grid-cols-3 gap-2">
+    <button onclick="selectVipLevel(1)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 1</div>
+      <div class="text-xs text-amber-300 mt-1">VIP</div>
+    </button>
+    <button onclick="selectVipLevel(2)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 2</div>
+      <div class="text-xs text-amber-300 mt-1">VIP</div>
+    </button>
+    <button onclick="selectVipLevel(3)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 3</div>
+      <div class="text-xs text-amber-300 mt-1">VIP</div>
+    </button>
+    <button onclick="selectVipLevel(4)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 4</div>
+      <div class="text-xs text-amber-300 mt-1">VIP</div>
+    </button>
+    <button onclick="selectVipLevel(5)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 5</div>
+      <div class="text-xs text-amber-300 mt-1">كبار الشخصيات</div>
+    </button>
+    <button onclick="selectVipLevel(6)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 6</div>
+      <div class="text-xs text-amber-300 mt-1">كبار الشخصيات</div>
+    </button>
+    <button onclick="selectVipLevel(7)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 7</div>
+      <div class="text-xs text-amber-300 mt-1">نجوم</div>
+    </button>
+    <button onclick="selectVipLevel(8)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 8</div>
+      <div class="text-xs text-amber-300 mt-1">نجوم</div>
+    </button>
+    <button onclick="selectVipLevel(9)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 9</div>
+      <div class="text-xs text-amber-300 mt-1">نجوم</div>
+    </button>
+    <button onclick="selectVipLevel(10)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 10</div>
+      <div class="text-xs text-amber-300 mt-1">أساطير</div>
+    </button>
+    <button onclick="selectVipLevel(11)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 11</div>
+      <div class="text-xs text-amber-300 mt-1">أساطير</div>
+    </button>
+    <button onclick="selectVipLevel(12)" class="vip-level-card rounded-xl border border-slate-800 bg-slate-900 p-3 text-center">
+      <i class="fa-solid fa-crown text-amber-400"></i>
+      <div class="font-bold mt-2">VIP 12</div>
+      <div class="text-xs text-amber-300 mt-1">أساطير</div>
+    </button>
+  </div>
+
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <h3 id="vip-selected-title" class="font-extrabold text-lg">VIP 1</h3>
+    <p id="vip-selected-description" class="text-sm text-slate-400 mt-3">اختار مستوى لعرض تفاصيله.</p>
+    <div class="mt-4 text-sm">السعر: <span id="vip-selected-price" class="font-bold text-amber-400"></span></div>
+    <button onclick="showToast('الترقية الفعلية تحتاج نظام رصيد وتحقق من العملية','info')" class="w-full mt-4 rounded-xl bg-amber-500 text-slate-950 font-extrabold p-3">ترقية العضوية</button>
+  </div>
+
+  <div class="bg-slate-900 border border-violet-500/30 rounded-2xl p-4">
+    <h3 class="font-extrabold text-violet-300"><i class="fa-solid fa-user-secret"></i> التصفح الخفي</h3>
+    <p class="text-sm text-slate-400 mt-2">اشتراك مستقل، سعره ومميزاته سيتم تحديدهما لاحقًا.</p>
+    <div class="mt-3 text-sm">السعر: <span class="text-violet-300 font-bold">لم يُحدد بعد</span></div>
+    <button onclick="showToast('اشتراك التصفح الخفي غير متاح للشراء حتى الآن','info')" class="w-full mt-4 rounded-xl border border-violet-500/40 p-3 font-bold">تفاصيل التصفح الخفي</button>
+  </div>
+</section>
+
+<section id="view-games" class="page-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <h2 class="text-xl font-extrabold mb-2">🎮 الألعاب</h2>
+                <p class="text-sm text-slate-400 mb-4">اختار لعبتك واستمتع مع الأصدقاء.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="showToast('اللعبة هتتجهز في الخطوة الجاية','info')" class="bg-violet-600/20 border border-violet-500/30 rounded-xl p-4 text-right">
+                        <i class="fa-solid fa-puzzle-piece text-2xl text-violet-400"></i>
+                        <div class="font-bold mt-2">تحدي الذكاء</div>
+                        <div class="text-xs text-slate-400 mt-1">قريبًا</div>
+                    </button>
+                    <button onclick="showToast('اللعبة هتتجهز في الخطوة الجاية','info')" class="bg-amber-600/10 border border-amber-500/30 rounded-xl p-4 text-right">
+                        <i class="fa-solid fa-circle-question text-2xl text-amber-400"></i>
+                        <div class="font-bold mt-2">أسئلة وتحديات</div>
+                        <div class="text-xs text-slate-400 mt-1">قريبًا</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-messages" class="page-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <h2 class="text-xl font-extrabold mb-2">💬 الرسائل</h2>
+                <p class="text-sm text-slate-400 mb-4">هنا هتظهر محادثاتك مع الأصدقاء.</p>
+                <div class="border border-slate-800 rounded-xl p-4 text-center">
+                    <i class="fa-solid fa-comments text-3xl text-violet-400 mb-3"></i>
+                    <p class="font-bold">مفيش محادثات لسه</p>
+                    <p class="text-xs text-slate-500 mt-1">واجهة الرسائل جاهزة للتطوير في الخطوة التالية.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="view-privacy" class="page-view hidden space-y-4">
+            <div class="flex items-center gap-3">
+                <button onclick="switchView('profile')" class="bg-slate-900 border border-slate-800 rounded-xl p-3" aria-label="رجوع">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <div>
+                    <h2 class="text-xl font-extrabold">الخصوصية وبيانات الحساب</h2>
+                    <p class="text-xs text-slate-400 mt-1">إعداداتك داخل حسابك</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <h3 class="font-bold"><i class="fa-solid fa-language text-violet-400 ml-2"></i>لغة التطبيق</h3>
+                <select id="privacy-language" onchange="savePrivacySettings()"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white">
+                    <option value="ar">العربية</option>
+                    <option value="en">English (قيد التطوير)</option>
+                </select>
+                <p class="text-xs text-slate-400">العربية هي اللغة الافتراضية. اختيار الإنجليزية محفوظ، لكن ترجمة التطبيق بالكامل لم تُنفّذ بعد.</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <h3 class="font-bold"><i class="fa-solid fa-shield-halved text-emerald-400 ml-2"></i>خصوصية الحساب</h3>
+                <p class="text-xs text-amber-300">الإعدادات تُحفظ على هذا الجهاز حاليًا؛ تطبيقها على ظهورك للآخرين يحتاج ربط الخادم.</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <h3 class="font-bold">بيانات الحساب</h3>
+                <div class="rounded-xl bg-slate-950 p-3">
+                    <p class="text-xs text-slate-400">معرّف المستخدم</p>
+                    <p id="privacy-user-id" class="font-bold mt-1"></p>
+                </div>
+                <button onclick="showToast('ربط Gmail يحتاج إعداد تسجيل دخول آمن','info')" class="w-full text-right bg-slate-950 rounded-xl p-3">
+                    <i class="fa-brands fa-google ml-2 text-violet-400"></i>ربط Gmail
+                    <p class="text-xs text-slate-500 mt-1">يتطلب إعداد تسجيل الدخول على الخادم</p>
+                </button>
+                <button onclick="showToast('ربط الهاتف يحتاج رمز تحقق وخادمًا','info')" class="w-full text-right bg-slate-950 rounded-xl p-3">
+                    <i class="fa-solid fa-mobile-screen ml-2 text-violet-400"></i>ربط أو تغيير رقم الهاتف
+                </button>
+                <button onclick="showToast('تغيير كلمة المرور يحتاج نظام حسابات آمن','info')" class="w-full text-right bg-slate-950 rounded-xl p-3">
+                    <i class="fa-solid fa-key ml-2 text-violet-400"></i>تعيين أو تغيير كلمة المرور
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- شريط التنقل السفلي: غرف، ألعاب، الرسائل، أنا -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 max-w-md mx-auto grid grid-cols-4 items-center py-2.5 px-2">
+        <button onclick="switchView('home')" id="tab-home" class="nav-tab flex flex-col items-center gap-1 text-violet-400 transition active:scale-90">
+            <i class="fa-solid fa-door-open text-lg"></i>
+            <span class="text-[10px] font-bold">غرف</span>
+        </button>
+        <button onclick="switchView('games')" id="tab-games" class="nav-tab flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition active:scale-90">
+            <i class="fa-solid fa-gamepad text-lg"></i>
+            <span class="text-[10px] font-bold">ألعاب</span>
+        </button>
+        <button onclick="switchView('messages')" id="tab-messages" class="nav-tab flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition active:scale-90">
+            <i class="fa-solid fa-comments text-lg"></i>
+            <span class="text-[10px] font-bold">الرسائل</span>
+        </button>
+        <button onclick="switchView('profile')" id="tab-profile" class="nav-tab flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition active:scale-90">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[10px] font-bold">أنا</span>
+        </button>
+    </nav>
+
+    <!-- البرمجة التفاعلية بالكامل (Javascript) -->
+    <script>
+        /* حالة التطبيق الموحدة (State Management) */
+        let state = {
+            user: null,
+            currentRoom: null,
+            isMicMuted: false,
+            rooms: [
+                { id: 101, title: '👑 سهرة طرب وروقان الخليج', host: 'سلطان زمانه', online: 342, tag: 'طرب' },
+                { id: 102, title: '🔥 تحديات الصراحة والشعر', host: 'ريما', online: 189, tag: 'شعر' },
+                { id: 103, title: '🎮 مسابقة أسئلة وجوائز عملات', host: 'فهد VIP', online: 512, tag: 'ألعاب' }
+            ],
+            // 8 مقاعد للمايكات في الغرفة الصوتية
+            seats: [
+                { seatNum: 1, user: 'سلطان زمانه', isSpeaking: true, avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80' },
+                { seatNum: 2, user: null },
+                { seatNum: 3, user: null },
+                { seatNum: 4, user: null },
+                { seatNum: 5, user: null },
+                { seatNum: 6, user: null },
+                { seatNum: 7, user: null },
+                { seatNum: 8, user: null }
+            ]
+        };
+
+        // تشغيل التهيئة عند بدء تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPrivacySettings();
+            renderRooms();
+            renderSeats();
+            let session = null;
+            try { session = JSON.parse(localStorage.getItem('voicelive_session') || 'null'); } catch (_) {}
+            if (session && session.id && session.name) {
+                state.user = session;
+                updateUIState();
+                closeAuthModal();
+            } else {
+                state.user = null;
+                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+                openAuthModal();
+                setAuthMode('login');
+            }
+        });
+
+        /* التنبيهات المنبثقة الراقية (Toast) */
+
+        function loadPrivacySettings() {
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('voicelive_privacy') || '{}');
+            } catch (_) {}
+            const language = document.getElementById('privacy-language');
+            const avatar = document.getElementById('privacy-avatar');
+            const name = document.getElementById('privacy-name');
+            const userId = document.getElementById('privacy-user-id');
+            if (language) language.value = settings.language || 'ar';
+            if (avatar) avatar.checked = settings.showAvatar !== false;
+            if (name) name.checked = settings.showName !== false;
+            if (userId && state && state.user) userId.textContent = state.user.id;
+        }
+
+        function savePrivacySettings() {
+            const settings = {
+                language: document.getElementById('privacy-language').value,
+                showAvatar: document.getElementById('privacy-avatar').checked,
+                showName: document.getElementById('privacy-name').checked
+            };
+            localStorage.setItem('voicelive_privacy', JSON.stringify(settings));
+            showToast('تم حفظ التفضيلات على هذا الجهاز', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = message;
+            if(type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if(type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-xmark text-red-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-violet-400";
+            }
+
+            toast.classList.remove('opacity-0', '-translate-y-5', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-5', 'pointer-events-none');
+            }, 3000);
+        }
+
+        /* نظام تسجيل الدخول وإنشاء الحساب */
+        let authMode = 'login';
+
+        function setAuthMode(mode) {
+            authMode = mode === 'register' ? 'register' : 'login';
+            const wrap = document.getElementById('auth-confirm-wrap');
+            const confirm = document.getElementById('auth-confirm-password');
+            wrap.classList.toggle('hidden', authMode !== 'register');
+            confirm.required = authMode === 'register';
+            document.getElementById('auth-password').autocomplete =
+                authMode === 'register' ? 'new-password' : 'current-password';
+            document.getElementById('auth-submit').textContent =
+                authMode === 'register' ? 'إنشاء الحساب والدخول' : 'تسجيل الدخول';
+        }
+
+        async function hashPassword(password) {
+            const data = new TextEncoder().encode(password);
+            const digest = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(digest))
+                .map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const name = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const confirm = document.getElementById('auth-confirm-password').value;
+            const avatar = '';
+
+            if (name.length < 3 || name.length > 30 || password.length < 8) {
+                showToast('اكتب اسم مستخدم من 3 أحرف وكلمة مرور من 8 أحرف على الأقل', 'error');
+                return;
+            }
+
+            let accounts = {};
+            try { accounts = JSON.parse(localStorage.getItem('voicelive_accounts') || '{}'); } catch (_) {}
+            const key = name.toLocaleLowerCase();
+
+            if (authMode === 'register') {
+                if (password !== confirm) {
+                    showToast('كلمتا المرور غير متطابقتين', 'error');
+                    return;
+                }
+                if (accounts[key]) {
+                    showToast('هذا الاسم مسجل بالفعل؛ اختر تسجيل الدخول', 'error');
+                    return;
+                }
+                accounts[key] = {
+                    name,
+                    passwordHash: await hashPassword(password),
+                    id: Math.floor(10000 + Math.random() * 90000).toString(),
+                    avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+                    coins: 1500
+                };
+                localStorage.setItem('voicelive_accounts', JSON.stringify(accounts));
+            } else {
+                if (!accounts[key] || accounts[key].passwordHash !== await hashPassword(password)) {
+                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                    return;
+                }
+            }
+
+            const account = accounts[key];
+            state.user = {
+                id: account.id,
+                name: account.name,
+                avatar: account.avatar,
+                coins: account.coins || 0,
+                role: 'user'
+            };
+            localStorage.setItem('voicelive_session', JSON.stringify(state.user));
+            updateUIState();
+            closeAuthModal();
+            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+            const rooms = document.getElementById('view-rooms');
+            if (rooms) rooms.classList.remove('hidden');
+            document.getElementById('auth-form').reset();
+            setAuthMode('login');
+            showToast('تم الدخول بنجاح يا ' + state.user.name);
+        }
+
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function logoutAction() {
+            localStorage.removeItem('voicelive_session');
+            state.user = null;
+            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+            openAuthModal();
+            setAuthMode('login');
+            showToast('تم تسجيل الخروج', 'info');
+        }
+
+        /* تحديث الواجهة وعناصر الرصيد والمستخدم */
+        function updateUIState() {
+            // بيانات الهيدر
+            document.getElementById('nav-user-name').innerText = state.user.name;
+            document.getElementById('nav-user-id').innerText = `ID: ${state.user.id}`;
+            document.getElementById('nav-user-avatar').src = state.user.avatar;
+            document.getElementById('nav-coins-count').innerText = state.user.coins.toLocaleString();
+            
+            // بيانات البروفايل
+            document.getElementById('profile-name').innerText = state.user.name;
+            document.getElementById('profile-id').innerText = `ID: ${state.user.id}`;
+            document.getElementById('profile-avatar').src = state.user.avatar;
+            document.getElementById('store-coins-count').innerText = state.user.coins.toLocaleString();
+
+            const roleBadges = { admin: 'مالك التطبيق', agency: 'مدير وكالة', user: 'عضو' };
+            const badgeText = roleBadges[state.user.role] || 'عضو';
+            document.getElementById('nav-user-badge').innerText = badgeText;
+            document.getElementById('profile-role-tag').innerText = badgeText;
+        }
+
+        /* نظام التنقل بين الصفحات بدون أخطاء (Page Router) */
+        function switchView(viewName) {
+            if (!state.user) {
+                openAuthModal();
+                return;
+            }
+            // منع المستخدم العادي من فتح صفحة المالك
+            if (viewName === 'admin' && state.user.role !== 'admin') {
+                showToast('ليس لديك صلاحية الوصول إلى لوحة المالك', 'error');
+                return;
+            }
+
+            // إخفاء كل الواجهات
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.add('hidden');
+            });
+
+            // إزالة التحديد عن كل الأزرار
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('text-violet-400');
+                tab.classList.add('text-slate-400');
+            });
+
+            // إظهار الصفحة المختارة
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
+
+            // تفعيل لون التبويب النشط
+            const activeTab = document.getElementById(`tab-${viewName}`);
+            if (activeTab) {
+                activeTab.classList.remove('text-slate-400');
+                activeTab.classList.add('text-violet-400');
+            }
+
+            // التمرير لأعلى الصفحة بنعومة
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* عرض الغرف المتاحة */
+        function renderRooms() {
+            const container = document.getElementById('rooms-list');
+            container.innerHTML = '';
+
+            state.rooms.forEach(room => {
+                const roomEl = document.createElement('div');
+                roomEl.className = "bg-slate-900 border border-slate-800 hover:border-violet-500/50 p-4 rounded-2xl flex items-center justify-between transition cursor-pointer active:scale-98";
+                roomEl.onclick = () => joinRoom(room);
+                roomEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-lg font-bold">
+                            🎙️
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${room.title}</h4>
+                            <p class="text-xs text-slate-400">المالك: ${room.host}</p>
+                            <span class="inline-block bg-violet-950 text-violet-300 text-[10px] px-2 py-0.5 rounded-md mt-1 border border-violet-800/40"># ${room.tag}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-emerald-400 font-bold flex items-center gap-1 justify-end">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            ${room.online} متصل
+                        </span>
+                        <button class="mt-2 bg-violet-600/30 text-violet-300 text-xs px-3 py-1 rounded-xl border border-violet-500/30">دخول</button>
+                    </div>
+                `;
+                container.appendChild(roomEl);
+            });
+        }
+
+        /* الدخول لغرفة معينة */
+        function joinRoom(room) {
+            state.currentRoom = room;
+            document.getElementById('current-room-title').innerText = room.title;
+            document.getElementById('current-room-host').innerText = `المالك: ${room.host} | ID: ${room.id}`;
+            switchView('room');
+            showToast(`دخلت إلى: ${room.title}`);
+        }
+
+        function leaveRoom() {
+            state.currentRoom = null;
+            switchView('home');
+            showToast('خرجت من الغرفة');
+        }
+
+        /* توليد مقاعد المايكات الـ 8 */
+        function renderSeats() {
+            const stage = document.getElementById('mics-stage');
+            stage.innerHTML = '';
+
+            state.seats.forEach((seat, idx) => {
+                const seatBox = document.createElement('div');
+                seatBox.className = "flex flex-col items-center gap-1";
+                
+                if (seat.user) {
+                    seatBox.innerHTML = `
+                        <div onclick="takeSeat(${idx})" class="w-12 h-12 rounded-full border-2 border-violet-500 relative flex items-center justify-center cursor-pointer ${seat.isSpeaking ? 'speaking' : ''}">
+                            <img src="${seat.avatar}" class="w-full h-full rounded-full object-cover">
+                            <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
+                                <i class="fa-solid fa-microphone"></i>
+                            </span>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-300 truncate w-14 text-center">${seat.user}</span>
+                    `;
+                } else {
+                    seatBox.innerHTML = `
+                        <div onclick="takeSeat(${idx})" class="w-12 h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950 hover:border-violet-500 flex items-center justify-center cursor-pointer transition">
+                            <i class="fa-solid fa-plus text-slate-500 text-xs"></i>
+                        </div>
+                        <span class="text-[10px] text-slate-500">مقعد ${seat.seatNum}</span>
+                    `;
+                }
+                stage.appendChild(seatBox);
+            });
+        }
+
+        /* الصعود على المايك / النزول */
+        function takeSeat(seatIndex) {
+            if (state.seats[seatIndex].user === state.user.name) {
+                // إذا كان هو من يشغل المقعد يتركه
+                state.seats[seatIndex].user = null;
+                showToast(`تركت المقعد ${seatIndex + 1}`);
+            } else {
+                state.seats[seatIndex].user = state.user.name;
+                state.seats[seatIndex].avatar = state.user.avatar;
+                state.seats[seatIndex].isSpeaking = true;
+                showToast(`صعدت على المايك رقم ${seatIndex + 1}! تحدث الآن`);
+            }
+            renderSeats();
+        }
+
+        /* كتم وتشغيل المايك الخاص بك */
+        function toggleMyMic() {
+            state.isMicMuted = !state.isMicMuted;
+            const icon = document.getElementById('mic-toggle-icon');
+            const text = document.getElementById('mic-toggle-text');
+
+            if(state.isMicMuted) {
+                icon.className = "fa-solid fa-microphone-slash text-red-400";
+                text.innerText = "المايك مغلق";
+                showToast('تم كتم المايك الخاص بك', 'info');
+            } else {
+                icon.className = "fa-solid fa-microphone text-emerald-400";
+                text.innerText = "المايك مفتوح";
+                showToast('المايك مفتوح والصوت يعمل');
+            }
+        }
+
+        /* إرسال رسالة في شات الغرفة */
+        function sendChatMessage() {
+            const input = document.getElementById('room-chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatContainer = document.getElementById('room-messages');
+            const msgEl = document.createElement('div');
+            msgEl.className = "bg-transparent border-0 p-2 rounded-xl";
+            msgEl.style.background = "transparent";
+            msgEl.style.boxShadow = "none";
+            msgEl.innerHTML = `
+                <span class="font-bold text-white ml-1">${state.user.name}:</span>
+                <span class="text-white">${text}</span>
+            `;
+            chatContainer.appendChild(msgEl);
+            input.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        /* نافذة ونظام إرسال الهدايا بالعملات */
+        function toggleGiftModal() {
+            const modal = document.getElementById('gift-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function sendGift(giftName, price) {
+            if(state.user.coins < price) {
+                showToast('رصيدك من العملات لا يكفي! قم بالشحن من المتجر', 'error');
+                toggleGiftModal();
+                switchView('store');
+                return;
+            }
+
+            state.user.coins -= price;
+            updateUIState();
+            toggleGiftModal();
+
+            // رسالة الهدايا العامة داخل شات الروم
+            const chatContainer = document.getElementById('room-messages');
+            const giftMsg = document.createElement('div');
+            giftMsg.className = "bg-amber-400/20 border border-amber-400/40 p-2.5 rounded-xl text-amber-300 font-bold text-center";
+            giftMsg.innerHTML = `🎉 قام ${state.user.name} بإرسال [${giftName}] بقيمة ${price} عملة!`;
+            chatContainer.appendChild(giftMsg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            showToast(`تم إرسال ${giftName} بنجاح!`);
+        }
+
+        /* شحن العملات */
+        
+        const VODAFONE_CASH_NUMBER = '';
+        function selectRechargePack(amount) {
+            const input = document.getElementById('recharge-amount');
+            if (!input) return;
+            input.value = amount;
+            updateRechargePreview();
+            document.getElementById('recharge-request-form')?.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+        function updateRechargePreview() {
+            const amount = Number(document.getElementById('recharge-amount')?.value || 0);
+            const preview = document.getElementById('recharge-coins-preview');
+            if (preview) preview.textContent = amount >= 100 && amount % 100 === 0
+                ? `ستحصل على ${(amount * 1100).toLocaleString('en-US')} عملة عند الموافقة`
+                : 'اختر مبلغًا لا يقل عن 100 جنيه ويكون من مضاعفات 100 جنيه';
+        }
+        function copyVodafoneNumber() {
+            if (!VODAFONE_CASH_NUMBER) {
+                showToast('رقم فودافون كاش لم يحدده المالك بعد');
+                return;
+            }
+            navigator.clipboard?.writeText(VODAFONE_CASH_NUMBER)
+                .then(() => showToast('تم نسخ رقم المحفظة'))
+                .catch(() => showToast('رقم المحفظة: ' + VODAFONE_CASH_NUMBER));
+        }
+        async function submitRechargeRequest(event) {
+            event.preventDefault();
+            const amount = Number(document.getElementById('recharge-amount').value);
+            const sender = document.getElementById('recharge-sender').value.trim();
+            const reference = document.getElementById('recharge-reference').value.trim();
+            const file = document.getElementById('recharge-receipt').files[0];
+            if (!VODAFONE_CASH_NUMBER) {
+                showToast('لا يمكن إرسال الطلب قبل أن يحدد المالك رقم فودافون كاش');
+                return;
+            }
+            if (!Number.isInteger(amount) || amount < 100 || amount % 100 !== 0) {
+                showToast('المبلغ يجب أن يكون 100 جنيه أو مضاعفاته');
+                return;
+            }
+            if (!file || !file.type.startsWith('image/')) {
+                showToast('اختر صورة إيصال التحويل');
+                return;
+            }
+            const requests = JSON.parse(localStorage.getItem('voicelive_recharge_requests') || '[]');
+            requests.unshift({
+                id: 'RC' + Date.now(),
+                amount,
+                coins: amount * 1100,
+                sender,
+                reference,
+                receiptName: file.name,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('voicelive_recharge_requests', JSON.stringify(requests.slice(0, 30)));
+            renderRechargeRequests();
+            event.target.reset();
+            updateRechargePreview();
+            showToast('تم تسجيل الطلب محليًا للمراجعة، ولم تتم إضافة العملات');
+        }
+        function renderRechargeRequests() {
+            const el = document.getElementById('recharge-requests-list');
+            if (!el) return;
+            const requests = JSON.parse(localStorage.getItem('voicelive_recharge_requests') || '[]');
+            el.innerHTML = '<h4 class="font-bold text-white my-3">طلبات الشحن على هذا الجهاز</h4>' +
+                (requests.length ? requests.map(r =>
+                    `<div class="border border-slate-700 rounded-xl p-3 mb-2">طلب ${r.id} — ${r.amount.toLocaleString('en-US')} جنيه / ${r.coins.toLocaleString('en-US')} عملة<br>الحالة: قيد المراجعة<br>الإيصال المختار: ${String(r.receiptName).replace(/[&<>"]/g, '')}</div>`
+                ).join('') : 'لا توجد طلبات شحن بعد.');
+        }
+
+        function rechargeCoins(amount, price) { showToast('الشحن الفوري متوقف. استخدم طلب فودافون كاش للمراجعة.'); }
+
+        /* نظام الوكالات */
+        function agencyJoinAction() {
+            showToast('تم استلام طلب انضمامك للوكالة وسيتم الرد خلال 24 ساعة');
+        }
+
+        function applyToSpecificAgency(name) {
+            showToast(`تم التقديم على وكالة: ${name}`);
+        }
+
+        /* لوحة تحكم المالك */
+        function adminGiftCoinsAll() {
+            state.user.coins += 500;
+            updateUIState();
+            showToast('تم إرسال 500 عملة لكل المستخدمين على السيرفر!');
+        }
+
+        function adminBanUser(id) {
+            showToast(`تم حظر المستخدم صاحب المعرّف (ID: ${id}) ومنعه من السيرفر`, 'error');
+        }
+
+        function adminToggleSystemMaintenance() {
+            showToast('تم تبديل حالة صيانة السيرفر بنجاح', 'info');
+        }
+
+        function createRoomPrompt() {
+            const name = prompt('اكتب اسم غرفتك الصوتية الجديدة:');
+            if(name) {
+                const newRoom = {
+                    id: Math.floor(100 + Math.random() * 900),
+                    title: name,
+                    host: state.user.name,
+                    online: 1,
+                    tag: 'عام'
+                };
+                state.rooms.unshift(newRoom);
+                renderRooms();
+                joinRoom(newRoom);
+                showToast('تم إنشاء غرفتك الخاصة بنجاح!');
+            }
+        }
+    </script>
+
+<script>
+(function () {
+  const prices = [
+    3000000, 6000000, 9000000, 12000000,
+    20000000, 40000000, 100000000, 250000000,
+    625000000, 1562500000, 3906250000, 9765625000
+  ];
+  const names = [
+    'VIP 1', 'VIP 2', 'VIP 3', 'VIP 4',
+    'كبار الشخصيات', 'كبار الشخصيات',
+    'نجوم', 'نجوم', 'نجوم',
+    'أساطير', 'أساطير', 'أساطير'
+  ];
+
+  window.selectVipLevel = function (level) {
+    level = Number(level);
+    if (!Number.isInteger(level) || level < 1 || level > 12) return;
+    const title = document.getElementById('vip-selected-title');
+    const desc = document.getElementById('vip-selected-description');
+    const price = document.getElementById('vip-selected-price');
+    if (title) title.textContent = 'VIP ' + level + ' — ' + names[level - 1];
+    if (desc) desc.textContent = 'فئة ' + names[level - 1] + '، والترقية تتطلب الرصيد الموضح أدناه.';
+    if (price) price.textContent = prices[level - 1].toLocaleString('en-US') + ' عملة';
+    document.querySelectorAll('.vip-level-card').forEach(function (el, index) {
+      el.classList.toggle('border-amber-400', index + 1 === level);
+      el.classList.toggle('border-slate-800', index + 1 !== level);
+    });
+  };
+
+  const current = document.getElementById('vip-current-level');
+  if (current) {
+    let level = Number(localStorage.getItem('voicelive_vip_level') || 0);
+    if (!Number.isInteger(level) || level < 0 || level > 12) level = 0;
+    current.textContent = 'VIP ' + level;
+  }
+  window.selectVipLevel(1);
+})();
+</script>
+\n</body>
+</html>
