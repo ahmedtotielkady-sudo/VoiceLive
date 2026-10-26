@@ -1,0 +1,162 @@
+require('dotenv').config();
+
+const express = require('express');
+const http = require('http');
+const { attachRealtime } = require('./realtime');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(x => x.trim())
+    : ['https://localhost', 'http://localhost', 'capacitor://localhost'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Txn-Id']
+}));
+app.use(express.json({ limit: '20kb' }));
+
+app.use('/api/auth', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false
+}));
+
+const User = mongoose.model('User', new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 24,
+    match: /^[a-zA-Z0-9_]+$/
+  },
+  passwordHash: { type: String, required: true },
+  coins: { type: Number, default: 0, min: 0 },
+  createdAt: { type: Date, default: Date.now }
+}));
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'VoiceLive API',
+    database: mongoose.connection.readyState === 1
+      ? 'connected'
+      : 'disconnected'
+  });
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database unavailable' });
+    }
+
+    const username = String(req.body.username || '');
+    const password = String(req.body.password || '');
+
+    if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
+      return res.status(400).json({
+        error: 'Username must be 3-24 letters, numbers or underscores'
+      });
+    }
+
+    if (password.length < 8 || password.length > 128) {
+      return res.status(400).json({
+        error: 'Password must be 8-128 characters'
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({ username, passwordHash });
+
+    res.status(201).json({
+      message: 'Account created',
+      user: {
+        id: user._id,
+        username: user.username,
+        coins: user.coins
+      }
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: 'Invalid account details' });
+    }
+
+    console.error('Registration error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database unavailable' });
+    }
+
+    const username = String(req.body.username || '');
+    const password = String(req.body.password || '');
+
+    const user = await User.findOne({ username });
+
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      return res.status(503).json({ error: 'Server authentication not configured' });
+    }
+
+    const token = jwt.sign(
+      { sub: user._id.toString() },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        coins: user.coins
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+const PORT = Number(process.env.PORT) || 3000;
+
+async function start() {
+  if (process.env.MONGO_URI) {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('Database connected');
+  } else {
+    console.log('MONGO_URI not configured; authentication is unavailable');
+  }
+
+  const httpServer = http.createServer(app);
+  attachRealtime(httpServer, app, User);
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`VoiceLive API running on port ${PORT}`);
+  });
+}
+
+start().catch(error => {
+  console.error('Startup failed:', error.message);
+  process.exit(1);
+});
