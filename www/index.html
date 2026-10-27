@@ -1120,7 +1120,7 @@
 
         /* مصادقة حقيقية عبر خادم VoiceLive */
         let authMode = 'register';
-        const VOICELIVE_API = 'http://127.0.0.1:3000';
+        const VOICELIVE_API = window.location.origin;
 
         function openAuthForm(mode) {
             authMode = mode === 'login' ? 'login' : 'register';
