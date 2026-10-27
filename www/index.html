@@ -305,26 +305,14 @@
                 <br>اعمل صداقات
             </h2>
 
-            <details class="vl-account" open>
-                <summary>الدخول باسم مستخدم</summary>
-                <form id="auth-form" onsubmit="handleAuth(event)" class="vl-form">
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" class="vl-submit" onclick="setAuthMode('login')">تسجيل الدخول</button>
-                        <button type="button" class="vl-submit" onclick="setAuthMode('register')">إنشاء حساب</button>
-                    </div>
-                    <label for="auth-username">اسم المستخدم</label>
-                    <input type="text" id="auth-username" required minlength="3" maxlength="30" autocomplete="username" placeholder="اكتب اسم المستخدم">
-                    <label for="auth-password">كلمة المرور</label>
-                    <input type="password" id="auth-password" required minlength="8" autocomplete="current-password" placeholder="8 أحرف على الأقل">
-                    <div id="auth-confirm-wrap" class="hidden">
-                        <label for="auth-confirm-password">تأكيد كلمة المرور</label>
-                        <input type="password" id="auth-confirm-password" minlength="8" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور">
-                    </div>
-<p class="vl-member"><i class="fa-solid fa-user"></i> نوع الحساب: عضو</p>
-                    <button type="submit" id="auth-submit" class="vl-submit">تسجيل الدخول</button>
-                    <p class="text-xs opacity-70 mt-3">نسخة تجريبية: الحسابات محفوظة على هذا الجهاز فقط.</p>
-                </form>
-            </details>
+            <div class="vl-account" style="margin:20px 0 14px">
+                <button type="button" class="vl-social"
+                    style="width:100%;justify-content:center;gap:10px"
+                    onclick="const el=document.getElementById('auth-choice');el.classList.remove('hidden');el.style.display='flex'">
+                    <span>الدخول باسم مستخدم</span>
+                    <i class="fa-solid fa-user"></i>
+                </button>
+            </div>
 
             <div class="vl-social-buttons">
                 <button type="button" class="vl-social"
@@ -340,21 +328,47 @@
                 </button>
             </div>
 
+            <div id="auth-choice" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.92);align-items:center;justify-content:center;padding:24px">
+                <div style="width:100%;max-width:360px;background:#111827;border:1px solid #374151;border-radius:20px;padding:24px;text-align:center">
+                    <h3 style="font-size:21px;font-weight:800;margin-bottom:20px">أهلاً بك في صوتي</h3>
+                    <button type="button" class="vl-social" style="width:100%;justify-content:center;margin-bottom:12px"
+                        onclick="openAuthForm('register')">
+                        إنشاء حساب جديد
+                    </button>
+                    <button type="button" class="vl-social" style="width:100%;justify-content:center;margin-bottom:12px"
+                        onclick="openAuthForm('login')">
+                        تسجيل الدخول
+                    </button>
+                    <button type="button" class="vl-social" style="width:100%;justify-content:center"
+                        onclick="document.getElementById('auth-choice').classList.add('hidden')">
+                        رجوع
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="auth-panel" class="hidden" style="margin:18px 0;padding:20px;background:#111827;border:1px solid #374151;border-radius:20px;text-align:right">
+                <h3 id="auth-form-title" style="font-size:21px;font-weight:800;margin-bottom:18px;text-align:center">إنشاء حساب جديد</h3>
+                <form id="auth-form" onsubmit="handleAuth(event)">
+                    <label for="auth-username" style="display:block;margin:12px 0 6px">اسم المستخدم</label>
+                    <input id="auth-username" name="username" type="text" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username" placeholder="3 إلى 24 حرفًا أو رقمًا أو _" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #4b5563;border-radius:12px;background:#1f2937;color:white">
+                    <label for="auth-password" style="display:block;margin:14px 0 6px">كلمة المرور</label>
+                    <input id="auth-password" name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password" placeholder="8 أحرف على الأقل" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #4b5563;border-radius:12px;background:#1f2937;color:white">
+                    <button id="auth-submit" type="submit" class="vl-social" style="width:100%;justify-content:center;margin-top:18px">إنشاء الحساب</button>
+                    <button type="button" class="vl-social" style="width:100%;justify-content:center;margin-top:10px" onclick="closeAuthForm()">رجوع</button>
+                </form>
+            </div>
+
             <div class="vl-shortcuts">
                 <button type="button" aria-label="تويتر"
                     onclick="showToast('يمكن إضافة رابط حساب التواصل لاحقاً','info')">
                     <i class="fa-brands fa-twitter"></i>
                 </button>
-                <button type="button" aria-label="الدخول"
-                    onclick="document.getElementById('auth-username').focus();document.getElementById('auth-form').scrollIntoView({behavior:'smooth',block:'center'})">
-                    <i class="fa-solid fa-phone"></i>
-                </button>
                 <button type="button" aria-label="حساب جديد"
-                    onclick="document.getElementById('auth-username').focus();document.getElementById('auth-form').scrollIntoView({behavior:'smooth',block:'center'})">
+                    onclick="openAuthForm('register')">
                     <i class="fa-solid fa-mobile-screen-button"></i>
                 </button>
             </div>
-
 
 
             <p class="vl-legal">
@@ -394,7 +408,14 @@
         <!-- 1. صفحة استكشاف الغرف (Home / Rooms) -->
         <section id="view-home" class="page-view space-y-4">
             <!-- لافتة ترويجية -->
-            
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-900 to-indigo-900 p-4 border border-violet-700/40">
+                <div class="relative z-10">
+                    <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">موسم الهدايا</span>
+                    <h3 class="text-lg font-black mt-1">تحدي النجوم الأسبوعي</h3>
+                    <p class="text-xs text-slate-300 mt-0.5">ادخل الغرف وادعم صانعي المحتوى بالهدايا لربح عملات مضاعفة!</p>
+                </div>
+                <i class="fa-solid fa-crown absolute -left-2 -bottom-2 text-7xl text-white/10 transform rotate-12"></i>
+            </div>
 
             <!-- أزرار التصفح والبحث وإنشاء غرفة -->
             <div class="flex items-center gap-2">
@@ -993,7 +1014,13 @@
     <script>
         /* حالة التطبيق الموحدة (State Management) */
         let state = {
-            user: null,
+            user: {
+                id: '88492',
+                name: 'أمير الليل',
+                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+                coins: 1500,
+                role: 'user' // الدور الافتراضي الآمن
+            },
             currentRoom: null,
             isMicMuted: false,
             rooms: [
@@ -1016,21 +1043,31 @@
 
         // تشغيل التهيئة عند بدء تحميل الصفحة
         window.addEventListener('DOMContentLoaded', () => {
+            // استعادة جلسة المستخدم المحفوظة محلياً
+            try {
+                const rawSession = localStorage.getItem('voicelive_session');
+                if (rawSession) {
+                    const savedSession = JSON.parse(rawSession);
+                    if (
+                        savedSession &&
+                        typeof savedSession.token === 'string' &&
+                        savedSession.token.length > 0 &&
+                        savedSession.user &&
+                        typeof savedSession.user.name === 'string'
+                    ) {
+                        state.user = { ...state.user, ...savedSession.user };
+                    } else {
+                        localStorage.removeItem('voicelive_session');
+                    }
+                }
+            } catch (error) {
+                localStorage.removeItem('voicelive_session');
+            }
+
             loadPrivacySettings();
             renderRooms();
             renderSeats();
-            let session = null;
-            try { session = JSON.parse(localStorage.getItem('voicelive_session') || 'null'); } catch (_) {}
-            if (session && session.id && session.name) {
-                state.user = session;
-                updateUIState();
-                closeAuthModal();
-            } else {
-                state.user = null;
-                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-                openAuthModal();
-                setAuthMode('login');
-            }
+            updateUIState();
         });
 
         /* التنبيهات المنبثقة الراقية (Toast) */
@@ -1080,85 +1117,144 @@
             }, 3000);
         }
 
-        /* نظام تسجيل الدخول وإنشاء الحساب */
-        let authMode = 'login';
 
-        function setAuthMode(mode) {
-            authMode = mode === 'register' ? 'register' : 'login';
-            const wrap = document.getElementById('auth-confirm-wrap');
-            const confirm = document.getElementById('auth-confirm-password');
-            wrap.classList.toggle('hidden', authMode !== 'register');
-            confirm.required = authMode === 'register';
-            document.getElementById('auth-password').autocomplete =
-                authMode === 'register' ? 'new-password' : 'current-password';
+        /* مصادقة حقيقية عبر خادم VoiceLive */
+        let authMode = 'register';
+        const VOICELIVE_API = 'http://127.0.0.1:3000';
+
+        function openAuthForm(mode) {
+            authMode = mode === 'login' ? 'login' : 'register';
+
+            const modal = document.getElementById('auth-modal');
+            const choice = document.getElementById('auth-choice');
+            const panel = document.getElementById('auth-panel');
+
+            if (modal) modal.classList.remove('hidden');
+
+            if (choice) {
+                choice.classList.add('hidden');
+                choice.style.display = 'none';
+            }
+
+            if (panel) {
+                panel.classList.remove('hidden');
+                panel.style.display = 'block';
+            }
+
+            document.getElementById('auth-form-title').textContent =
+                authMode === 'register' ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+
             document.getElementById('auth-submit').textContent =
-                authMode === 'register' ? 'إنشاء الحساب والدخول' : 'تسجيل الدخول';
+                authMode === 'register' ? 'إنشاء الحساب' : 'دخول التطبيق';
+
+            const password = document.getElementById('auth-password');
+            password.autocomplete =
+                authMode === 'register' ? 'new-password' : 'current-password';
+
+            document.getElementById('auth-panel').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
         }
 
-        async function hashPassword(password) {
-            const data = new TextEncoder().encode(password);
-            const digest = await crypto.subtle.digest('SHA-256', data);
-            return Array.from(new Uint8Array(digest))
-                .map(b => b.toString(16).padStart(2, '0')).join('');
+        function closeAuthForm() {
+            document.getElementById('auth-panel').classList.add('hidden');
         }
 
         async function handleAuth(e) {
             e.preventDefault();
-            const name = document.getElementById('auth-username').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const confirm = document.getElementById('auth-confirm-password').value;
-            const avatar = '';
 
-            if (name.length < 3 || name.length > 30 || password.length < 8) {
-                showToast('اكتب اسم مستخدم من 3 أحرف وكلمة مرور من 8 أحرف على الأقل', 'error');
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const submit = document.getElementById('auth-submit');
+
+            if (!/^[A-Za-z0-9_]{3,24}$/.test(username)) {
+                showToast('اسم المستخدم يجب أن يكون من 3 إلى 24 حرفًا إنجليزيًا أو رقمًا أو _', 'error');
+                return;
+            }
+            if (password.length < 8 || password.length > 128) {
+                showToast('كلمة المرور يجب أن تكون من 8 إلى 128 حرفًا', 'error');
                 return;
             }
 
-            let accounts = {};
-            try { accounts = JSON.parse(localStorage.getItem('voicelive_accounts') || '{}'); } catch (_) {}
-            const key = name.toLocaleLowerCase();
+            submit.disabled = true;
+            submit.textContent = 'جارٍ الاتصال بالخادم...';
 
-            if (authMode === 'register') {
-                if (password !== confirm) {
-                    showToast('كلمتا المرور غير متطابقتين', 'error');
-                    return;
+            try {
+                if (authMode === 'register') {
+                    const registerResponse = await fetch(`${VOICELIVE_API}/api/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const registerData = await registerResponse.json().catch(() => ({}));
+
+                    if (!registerResponse.ok) {
+                        const messages = {
+                            'Username already exists': 'اسم المستخدم مستخدم بالفعل، اختَر اسمًا آخر',
+                            'Database unavailable': 'قاعدة البيانات غير متصلة',
+                            'Username must be 3-24 letters, numbers or underscores': 'اسم المستخدم غير صالح',
+                            'Password must be 8-128 characters': 'كلمة المرور غير صالحة'
+                        };
+                        throw new Error(messages[registerData.error] || 'تعذّر إنشاء الحساب');
+                    }
                 }
-                if (accounts[key]) {
-                    showToast('هذا الاسم مسجل بالفعل؛ اختر تسجيل الدخول', 'error');
-                    return;
+
+                const loginResponse = await fetch(`${VOICELIVE_API}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const loginData = await loginResponse.json().catch(() => ({}));
+
+                if (!loginResponse.ok) {
+                    const messages = {
+                        'Invalid username or password': 'اسم المستخدم أو كلمة المرور غير صحيحة',
+                        'Database unavailable': 'قاعدة البيانات غير متصلة',
+                        'Server authentication not configured': 'إعدادات أمان الخادم غير مكتملة'
+                    };
+                    throw new Error(messages[loginData.error] || 'فشل تسجيل الدخول');
                 }
-                accounts[key] = {
-                    name,
-                    passwordHash: await hashPassword(password),
-                    id: Math.floor(10000 + Math.random() * 90000).toString(),
-                    avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-                    coins: 1500
+
+                if (!loginData.token || !loginData.user) {
+                    throw new Error('استجابة الخادم غير مكتملة');
+                }
+
+                const savedUser = {
+                    id: String(loginData.user.id),
+                    name: loginData.user.username,
+                    coins: Number(loginData.user.coins) || 0,
+                    role: 'user',
+                    avatar: state.user.avatar
                 };
-                localStorage.setItem('voicelive_accounts', JSON.stringify(accounts));
-            } else {
-                if (!accounts[key] || accounts[key].passwordHash !== await hashPassword(password)) {
-                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
-                    return;
-                }
-            }
 
-            const account = accounts[key];
-            state.user = {
-                id: account.id,
-                name: account.name,
-                avatar: account.avatar,
-                coins: account.coins || 0,
-                role: 'user'
-            };
-            localStorage.setItem('voicelive_session', JSON.stringify(state.user));
-            updateUIState();
-            closeAuthModal();
-            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-            const rooms = document.getElementById('view-rooms');
-            if (rooms) rooms.classList.remove('hidden');
-            document.getElementById('auth-form').reset();
-            setAuthMode('login');
-            showToast('تم الدخول بنجاح يا ' + state.user.name);
+                state.user = savedUser;
+                localStorage.setItem('voicelive_session', JSON.stringify({
+                    token: loginData.token,
+                    user: savedUser
+                }));
+
+                updateUIState();
+                closeAuthForm();
+                document.getElementById('auth-modal')?.classList.add('hidden');
+                document.getElementById('auth-password').value = '';
+                showToast(
+                    authMode === 'register'
+                        ? `أهلًا بك يا ${savedUser.name}! تم إنشاء الحساب وحفظه`
+                        : `أهلًا بعودتك يا ${savedUser.name}!`,
+                    'success'
+                );
+            } catch (error) {
+                console.error('Authentication failed:', error.message);
+                if (error instanceof TypeError) {
+                    showToast('تعذّر الاتصال بالخادم. تأكد أنه يعمل في Termux', 'error');
+                } else {
+                    showToast(error.message || 'حدث خطأ أثناء تسجيل الدخول', 'error');
+                }
+            } finally {
+                submit.disabled = false;
+                submit.textContent = authMode === 'register' ? 'إنشاء الحساب' : 'دخول التطبيق';
+            }
         }
 
         function openAuthModal() {
@@ -1170,12 +1266,12 @@
         }
 
         function logoutAction() {
+            const confirmed = confirm('هل تريد تسجيل الخروج؟');
+            if (!confirmed) return;
+
             localStorage.removeItem('voicelive_session');
-            state.user = null;
-            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-            openAuthModal();
-            setAuthMode('login');
-            showToast('تم تسجيل الخروج', 'info');
+            showToast('تم تسجيل الخروج. جارٍ تحديث التطبيق...', 'info');
+            setTimeout(() => window.location.reload(), 500);
         }
 
         /* تحديث الواجهة وعناصر الرصيد والمستخدم */
@@ -1200,10 +1296,6 @@
 
         /* نظام التنقل بين الصفحات بدون أخطاء (Page Router) */
         function switchView(viewName) {
-            if (!state.user) {
-                openAuthModal();
-                return;
-            }
             // منع المستخدم العادي من فتح صفحة المالك
             if (viewName === 'admin' && state.user.role !== 'admin') {
                 showToast('ليس لديك صلاحية الوصول إلى لوحة المالك', 'error');
@@ -1550,5 +1642,7 @@
   window.selectVipLevel(1);
 })();
 </script>
-\n</body>
+\n<script src="vendor/socket.io.min.js"></script>
+<script src="realtime-client.js"></script>
+</body>
 </html>

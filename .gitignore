@@ -7,3 +7,18 @@ android/local.properties
 *.jks
 *.keystore
 build-error.log
+
+# Logs and temporary files
+*.log
+
+# Temporary backups
+backups/
+*.bak
+*.bak.*
+*.backup
+*.backup-*
+*.before-*
+*.login-backup
+
+# Local dependencies
+backend/node_modules/
