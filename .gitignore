@@ -22,3 +22,8 @@ backups/
 
 # Local dependencies
 backend/node_modules/
+
+# Backend backup files
+backend/backups/
+backend/*.backup-*
+backend/*.before-*
