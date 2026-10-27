@@ -22,6 +22,15 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20kb' }));
 
+// Serve the VoiceLive web interface
+const path = require('path');
+const frontendPath = path.join(__dirname, '..', 'www');
+app.use(express.static(frontendPath));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 app.use('/api/auth', rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
