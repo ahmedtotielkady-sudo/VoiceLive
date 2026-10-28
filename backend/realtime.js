@@ -10,6 +10,11 @@ const Room = mongoose.models.VoiceRoom || mongoose.model(
     tag: { type: String, default: 'عام', maxlength: 30 },
     hostId: { type: mongoose.Schema.Types.ObjectId, required: true },
     host: { type: String, required: true },
+    micCount: { type: Number, min: 1, max: 30, default: 8 },
+    micManagers: [{
+      userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+      username: { type: String, required: true }
+    }],
     seats: {
       type: [{
         seatNum: Number,
@@ -41,7 +46,13 @@ const Message = mongoose.models.VoiceMessage || mongoose.model(
   })
 );
 
-function safeRoom(room, online = 0) {
+function safeRoom(room, online = 0, userId = null) {
+  const isOwner = !!userId && String(room.hostId) === String(userId);
+  const canManageMics = isOwner || (
+    !!userId && (room.micManagers || []).some(
+      m => String(m.userId) === String(userId)
+    )
+  );
   return {
     id: room.roomCode,
     roomCode: room.roomCode,
@@ -49,8 +60,25 @@ function safeRoom(room, online = 0) {
     host: room.host,
     tag: room.tag,
     online,
+    micCount: Math.max(1, Math.min(30, Number(room.micCount || room.seats.length || 8))),
+    isOwner,
+    canManageMics,
     seats: room.seats
   };
+}
+
+function normalizeSeats(room) {
+  const count = Math.max(1, Math.min(30, Number(room.micCount || room.seats.length || 8)));
+  const existing = new Map((room.seats || []).map(seat => [Number(seat.seatNum), seat]));
+  const seats = [];
+  for (let n = 1; n <= count; n++) {
+    seats.push(existing.get(n) || {
+      seatNum: n, userId: null, username: null, avatar: null, isSpeaking: false
+    });
+  }
+  room.seats = seats;
+  room.micCount = count;
+  return room;
 }
 
 function attachRealtime(httpServer, app, User) {
@@ -174,7 +202,7 @@ function attachRealtime(httpServer, app, User) {
           host: user.username
         });
 
-        if (typeof ack === 'function') ack({ ok: true, room: safeRoom(room) });
+        if (typeof ack === 'function') ack({ ok: true, room: safeRoom(room, 0, user.id) });
         await emitRoomList();
       } catch (err) {
         console.error('Room create error:', err.message);
@@ -190,6 +218,7 @@ function attachRealtime(httpServer, app, User) {
           if (typeof ack === 'function') ack({ ok: false, error: 'الغرفة غير موجودة' });
           return;
         }
+        normalizeSeats(room);
 
         if (socket.data.roomCode && socket.data.roomCode !== roomCode) {
           const oldCode = socket.data.roomCode;
@@ -205,7 +234,7 @@ function attachRealtime(httpServer, app, User) {
 
         const result = {
           ok: true,
-          room: safeRoom(room, countRoom(roomCode)),
+          room: safeRoom(room, countRoom(roomCode), user.id),
           messages: messages.reverse().map(m => ({
             username: m.username,
             text: m.text,
@@ -269,12 +298,119 @@ function attachRealtime(httpServer, app, User) {
       }
     });
 
+    socket.on('room:mics:set', async (data = {}, ack) => {
+      try {
+        const roomCode = socket.data.roomCode;
+        const requested = Number(data.micCount);
+        if (!roomCode || !Number.isInteger(requested) || requested < 1 || requested > 30) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'اختر عددًا من 1 إلى 30' });
+          return;
+        }
+
+        const room = await Room.findOne({ roomCode });
+        if (!room) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'الغرفة غير موجودة' });
+          return;
+        }
+
+        const allowed = String(room.hostId) === String(user.id) ||
+          (room.micManagers || []).some(m => String(m.userId) === String(user.id));
+        if (!allowed) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'ليس لديك صلاحية إدارة المايكات' });
+          return;
+        }
+
+        normalizeSeats(room);
+        if (requested < room.micCount &&
+            room.seats.some(seat => Number(seat.seatNum) > requested && seat.userId)) {
+          if (typeof ack === 'function') ack({
+            ok: false,
+            error: 'لا يمكن تقليل العدد لأن هناك مقاعد مشغولة بعد العدد الجديد'
+          });
+          return;
+        }
+
+        const oldSeats = new Map(room.seats.map(seat => [Number(seat.seatNum), seat]));
+        room.seats = Array.from({ length: requested }, (_, i) => oldSeats.get(i + 1) || ({
+          seatNum: i + 1, userId: null, username: null, avatar: null, isSpeaking: false
+        }));
+        room.micCount = requested;
+        await room.save();
+
+        io.to(roomCode).emit('seats:updated', room.seats);
+        io.to(roomCode).emit('mics:updated', {
+          roomCode, micCount: requested, seats: room.seats
+        });
+        if (typeof ack === 'function') ack({
+          ok: true, micCount: requested, seats: room.seats
+        });
+      } catch (err) {
+        console.error('Mic count update error:', err.message);
+        if (typeof ack === 'function') ack({ ok: false, error: 'تعذر تعديل عدد المايكات' });
+      }
+    });
+
+    socket.on('room:mic-permission:set', async (data = {}, ack) => {
+      try {
+        const roomCode = socket.data.roomCode;
+        const username = String(data.username || '').trim();
+        const enabled = data.enabled === true;
+
+        if (!roomCode || !username || username.length > 24) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'اسم المستخدم غير صالح' });
+          return;
+        }
+
+        const room = await Room.findOne({ roomCode });
+        if (!room) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'الغرفة غير موجودة' });
+          return;
+        }
+
+        if (String(room.hostId) !== String(user.id)) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'مالك الغرفة فقط يمنح هذه الصلاحية' });
+          return;
+        }
+
+        const target = await User.findOne({ username }).select('_id username');
+        if (!target) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'لم يتم العثور على المستخدم' });
+          return;
+        }
+        if (String(target._id) === String(room.hostId)) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'المالك لديه الصلاحية بالفعل' });
+          return;
+        }
+
+        room.micManagers = room.micManagers || [];
+        const exists = room.micManagers.some(m => String(m.userId) === String(target._id));
+        if (enabled && !exists) {
+          room.micManagers.push({ userId: target._id, username: target.username });
+        } else if (!enabled && exists) {
+          room.micManagers = room.micManagers.filter(m => String(m.userId) !== String(target._id));
+        }
+        await room.save();
+
+        if (typeof ack === 'function') ack({
+          ok: true,
+          enabled,
+          username: target.username,
+          micManagers: room.micManagers.map(m => ({
+            userId: String(m.userId), username: m.username
+          }))
+        });
+      } catch (err) {
+        console.error('Mic permission update error:', err.message);
+        if (typeof ack === 'function') ack({ ok: false, error: 'تعذر تعديل الصلاحية' });
+      }
+    });
+
     socket.on('seat:take', async (data = {}, ack) => {
       try {
         const roomCode = socket.data.roomCode;
         const seatNum = Number(data.seatNum);
 
-        if (!roomCode || !Number.isInteger(seatNum) || seatNum < 1 || seatNum > 8) {
+        if (!roomCode || !Number.isInteger(seatNum) || seatNum < 1 || seatNum > 30) {
           if (typeof ack === 'function') ack({ ok: false, error: 'رقم المقعد غير صالح' });
           return;
         }
@@ -285,6 +421,11 @@ function attachRealtime(httpServer, app, User) {
           return;
         }
 
+        normalizeSeats(room);
+        if (seatNum > room.micCount) {
+          if (typeof ack === 'function') ack({ ok: false, error: 'هذا المقعد غير متاح في الغرفة' });
+          return;
+        }
         const target = room.seats.find(s => s.seatNum === seatNum);
         if (!target) {
           if (typeof ack === 'function') ack({ ok: false, error: 'المقعد غير موجود' });

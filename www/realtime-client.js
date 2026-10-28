@@ -74,6 +74,29 @@
       if (typeof window.renderSeats === 'function') window.renderSeats();
     });
 
+    socket.on('mics:updated', function (data) {
+      if (!data || String(data.roomCode) !== String(activeRoomId)) return;
+
+      if (window.state.currentRoom) {
+        window.state.currentRoom.micCount = Number(data.micCount) || 8;
+      }
+
+      if (Array.isArray(data.seats)) {
+        window.state.seats = data.seats.map(function (seat, index) {
+          return {
+            seatNum: seat.seatNum || index + 1,
+            user: seat.username || seat.user || null,
+            userId: seat.userId || null,
+            avatar: seat.avatar || window.state.user.avatar,
+            isSpeaking: Boolean(seat.isSpeaking)
+          };
+        });
+        if (typeof window.renderSeats === 'function') window.renderSeats();
+      }
+
+      updateMicControls();
+    });
+
     socket.on('room:presence', function (data) {
       if (!data) return;
       const room = window.state.rooms.find(function (r) {
@@ -102,6 +125,12 @@
       return;
     }
 
+    if (result.room) {
+      window.state.currentRoom = Object.assign(
+        {}, window.state.currentRoom || {}, result.room
+      );
+    }
+
     if (result.room && Array.isArray(result.room.seats)) {
       window.state.seats = result.room.seats.map(function (seat, index) {
         return {
@@ -120,6 +149,8 @@
       messages.replaceChildren();
       (result.messages || []).forEach(appendMessage);
     }
+
+    updateMicControls();
   }
 
   function appendMessage(message) {
@@ -141,6 +172,125 @@
     container.appendChild(row);
     container.scrollTop = container.scrollHeight;
   }
+
+  function updateMicControls() {
+    const panel = document.getElementById('room-mic-controls');
+    const permissionPanel = document.getElementById('room-mic-permission-controls');
+    const selector = document.getElementById('room-mic-count');
+    const managers = document.getElementById('room-mic-managers');
+    const room = window.state && window.state.currentRoom;
+
+    const canManage = !!room && (room.isOwner === true || room.canManageMics === true);
+    const isOwner = !!room && room.isOwner === true;
+
+    if (panel) panel.classList.toggle('hidden', !canManage);
+    if (permissionPanel) permissionPanel.classList.toggle('hidden', !isOwner);
+
+    if (selector) {
+      if (!selector.options.length) {
+        for (let n = 1; n <= 30; n++) {
+          const option = document.createElement('option');
+          option.value = String(n);
+          option.textContent = n + (n === 1 ? ' مايك' : ' مايكات');
+          selector.appendChild(option);
+        }
+      }
+      selector.value = String(Math.max(1, Math.min(30,
+        Number(room && room.micCount) || 8
+      )));
+    }
+
+    if (managers && !isOwner) managers.replaceChildren();
+  }
+
+  window.applyRoomMicCount = function () {
+    const selector = document.getElementById('room-mic-count');
+    const room = window.state && window.state.currentRoom;
+    const count = Number(selector && selector.value);
+
+    if (!room || !(room.isOwner || room.canManageMics)) {
+      toast('ليس لديك صلاحية إدارة المايكات', 'error');
+      return;
+    }
+    if (!socket || !socket.connected || !activeRoomId) {
+      toast('اتصل بالخادم أولًا', 'error');
+      return;
+    }
+
+    socket.emit('room:mics:set', { micCount: count }, function (result) {
+      if (!result || !result.ok) {
+        toast((result && result.error) || 'تعذر تعديل عدد المايكات', 'error');
+        updateMicControls();
+        return;
+      }
+
+      room.micCount = result.micCount;
+      if (Array.isArray(result.seats)) {
+        window.state.seats = result.seats.map(function (seat, index) {
+          return {
+            seatNum: seat.seatNum || index + 1,
+            user: seat.username || seat.user || null,
+            userId: seat.userId || null,
+            avatar: seat.avatar || window.state.user.avatar,
+            isSpeaking: Boolean(seat.isSpeaking)
+          };
+        });
+        if (typeof window.renderSeats === 'function') window.renderSeats();
+      }
+      updateMicControls();
+      toast('تم تحديث عدد المايكات إلى ' + result.micCount);
+    });
+  };
+
+  window.setRoomMicPermission = function (enabled) {
+    const room = window.state && window.state.currentRoom;
+    const input = document.getElementById('room-mic-manager-username');
+    const username = input ? input.value.trim() : '';
+
+    if (!room || room.isOwner !== true) {
+      toast('مالك الغرفة فقط يمكنه إدارة الصلاحيات', 'error');
+      return;
+    }
+    if (!username || username.length > 24) {
+      toast('اكتب اسم المستخدم الصحيح', 'error');
+      return;
+    }
+    if (!socket || !socket.connected || !activeRoomId) {
+      toast('اتصل بالخادم أولًا', 'error');
+      return;
+    }
+
+    socket.emit('room:mic-permission:set', {
+      username: username,
+      enabled: enabled === true
+    }, function (result) {
+      if (!result || !result.ok) {
+        toast((result && result.error) || 'تعذر تحديث الصلاحية', 'error');
+        return;
+      }
+
+      const list = document.getElementById('room-mic-managers');
+      if (list) {
+        list.replaceChildren();
+        (result.micManagers || []).forEach(function (manager) {
+          const item = document.createElement('div');
+          item.className = 'text-xs text-violet-200 py-1';
+          item.textContent = manager.username || '';
+          list.appendChild(item);
+        });
+      }
+
+      toast(enabled ? 'تم منح صلاحية إدارة المايكات' : 'تم سحب صلاحية إدارة المايكات');
+    });
+  };
+
+  window.grantRoomMicPermission = function () {
+    window.setRoomMicPermission(true);
+  };
+
+  window.revokeRoomMicPermission = function () {
+    window.setRoomMicPermission(false);
+  };
 
   function install() {
     if (!window.state) return;
@@ -175,6 +325,7 @@
       if (socket && socket.connected) socket.emit('room:leave');
       activeRoomId = null;
       if (originalLeaveRoom) originalLeaveRoom();
+      updateMicControls();
     };
 
     window.takeSeat = function (seatIndex) {
@@ -228,4 +379,5 @@
 
   // يتيح إعادة الاتصال بعد تسجيل الدخول دون إعادة تحميل الصفحة.
   window.connectVoiceLiveRealtime = connect;
+  window.updateVoiceLiveMicControls = updateMicControls;
 })();

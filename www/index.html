@@ -369,7 +369,7 @@
     <!-- شريط الرأس العلوي (Header) -->
     <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80" 
+            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80"
                  class="w-10 h-10 rounded-full border-2 border-violet-500 object-cover" alt="User">
             <div>
                 <h1 id="nav-user-name" class="font-bold text-sm leading-tight">مستخدم جديد</h1>
@@ -394,13 +394,13 @@
         <!-- 1. صفحة استكشاف الغرف (Home / Rooms) -->
         <section id="view-home" class="page-view space-y-4">
             <!-- لافتة ترويجية -->
-            
+
 
             <!-- أزرار التصفح والبحث وإنشاء غرفة -->
             <div class="flex items-center gap-2">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-500 text-xs"></i>
-                    <input type="text" placeholder="ابحث باسم الغرفة أو الـ ID..." 
+                    <input type="text" placeholder="ابحث باسم الغرفة أو الـ ID..."
                         class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pr-9 pl-3 text-xs focus:outline-none focus:border-violet-500">
                 </div>
                 <button onclick="createRoomPrompt()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-violet-600/30">
@@ -418,14 +418,14 @@
             </div>
 
             <!-- قائمة الغرف الصوتية النشطة -->
-            <div id="rooms-list" class="space-y-3">
+            <div id="rooms-list" class="space-y-3 pb-3">
                 <!-- يتم حقن الغرف بالـ JS -->
             </div>
         </section>
 
         <!-- 2. صفحة داخل الغرفة الصوتية (Active Voice Room) -->
-        <section id="view-room" class="page-view hidden space-y-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-2xl relative overflow-hidden">
+        <section id="view-room" class="page-view hidden space-y-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-4 shadow-2xl relative overflow-hidden">
                 <!-- رأس الغرفة -->
                 <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
                     <div class="flex items-center gap-3">
@@ -444,8 +444,43 @@
                 </div>
 
                 <!-- مسرح المايكات (8 مقاعد صوتية) -->
-                <div class="grid grid-cols-4 gap-3 py-6" id="mics-stage">
+                <div class="grid grid-cols-4 gap-x-2 gap-y-5 py-6 sm:gap-x-4 sm:gap-y-6" id="mics-stage">
                     <!-- تتولى الـ JS ملء المقاعد الـ 8 -->
+                </div>
+
+                <!-- لوحة إدارة المايكات: تظهر للمصرح لهم فقط -->
+                <div id="room-mic-controls"
+                     class="hidden rounded-2xl border border-violet-500/30 bg-violet-950/30 p-3 space-y-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-bold text-violet-200">إدارة المايكات</span>
+                        <select id="room-mic-count"
+                                class="bg-slate-900 border border-violet-500/30 rounded-xl px-3 py-2 text-sm text-white">
+                        </select>
+                        <button type="button" onclick="applyRoomMicCount()"
+                                class="bg-violet-600 hover:bg-violet-500 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                            تطبيق العدد
+                        </button>
+                    </div>
+
+                    <div id="room-mic-permission-controls"
+                         class="hidden border-t border-violet-500/20 pt-3 space-y-2">
+                        <p class="text-xs text-slate-300">منح أو سحب صلاحية إدارة المايكات لمستخدم.</p>
+                        <input id="room-mic-manager-username"
+                               maxlength="24" autocomplete="off"
+                               placeholder="اسم المستخدم"
+                               class="w-full bg-slate-900 border border-violet-500/30 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="grantRoomMicPermission()"
+                                    class="bg-emerald-700 hover:bg-emerald-600 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                                منح الصلاحية
+                            </button>
+                            <button type="button" onclick="revokeRoomMicPermission()"
+                                    class="bg-red-700 hover:bg-red-600 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                                سحب الصلاحية
+                            </button>
+                        </div>
+                        <div id="room-mic-managers" class="space-y-1"></div>
+                    </div>
                 </div>
 
                 <!-- صندوق الدردشة الحية داخل الغرفة -->
@@ -461,7 +496,7 @@
                         <button onclick="toggleGiftModal()" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition">
                             <i class="fa-solid fa-gift text-base"></i>
                         </button>
-                        <input type="text" id="room-chat-input" placeholder="اكتب رسالة للجميع..." 
+                        <input type="text" id="room-chat-input" placeholder="اكتب رسالة للجميع..."
                                onkeydown="if(event.key === 'Enter') sendChatMessage()"
                                class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-violet-500">
                         <button onclick="sendChatMessage()" class="w-10 h-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition active:scale-95">
@@ -542,7 +577,7 @@
                 </div>
             </div>
 
-            
+
             <div class="space-y-3">
                 <h3 class="font-bold text-base">💰 اختر باقة الشحن</h3>
                 <p class="text-xs text-slate-400">كل 100 جنيه = 110,000 عملة</p>
@@ -694,7 +729,7 @@
             <!-- إجراءات المالك السريعة -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
                 <h3 class="text-xs font-bold text-slate-300">أدوات الإدارة والتحكم</h3>
-                
+
                 <div class="flex flex-col gap-2">
                     <button onclick="adminGiftCoinsAll()" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
                         <i class="fa-solid fa-gift"></i>
@@ -730,7 +765,7 @@
         <!-- 7. صفحة الملف الشخصي (Profile) -->
         <section id="view-profile" class="page-view hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 text-center relative overflow-hidden">
-                <img id="profile-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" 
+                <img id="profile-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
                      class="w-20 h-20 rounded-full border-4 border-violet-600 mx-auto object-cover mb-3 shadow-xl">
                 <h2 id="profile-name" class="font-extrabold text-lg">مستخدم جديد</h2>
                 <p id="profile-id" class="text-xs text-slate-400">ID: 88492</p>
@@ -795,7 +830,7 @@
             </div>
         </section>
 
-        
+
 <section id="view-vip" class="page-view hidden space-y-4">
   <div class="flex items-center gap-3">
     <button onclick="switchView('profile')" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800" aria-label="رجوع">
@@ -895,7 +930,15 @@
                 <h2 class="text-xl font-extrabold mb-2">🎮 الألعاب</h2>
                 <p class="text-sm text-slate-400 mb-4">اختار لعبتك واستمتع مع الأصدقاء.</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="showToast('اللعبة هتتجهز في الخطوة الجاية','info')" class="bg-violet-600/20 border border-violet-500/30 rounded-xl p-4 text-right">
+
+      <button type="button" onclick="switchView('ludo'); if(window.initVoiceLiveLudo) window.initVoiceLiveLudo();"
+        class="bg-slate-800 border border-violet-500/50 rounded-2xl p-4 text-right hover:border-violet-400">
+        <div class="text-3xl mb-3">🎲</div>
+        <div class="font-extrabold">لودو</div>
+        <div class="text-xs text-slate-400 mt-1">العب بالنرد والقطع الملونة</div>
+        <div class="text-xs text-violet-300 mt-3">ابدأ اللعب ←</div>
+      </button>
+<button onclick="showToast('اللعبة هتتجهز في الخطوة الجاية','info')" class="bg-violet-600/20 border border-violet-500/30 rounded-xl p-4 text-right">
                         <i class="fa-solid fa-puzzle-piece text-2xl text-violet-400"></i>
                         <div class="font-bold mt-2">تحدي الذكاء</div>
                         <div class="text-xs text-slate-400 mt-1">قريبًا</div>
@@ -909,7 +952,12 @@
             </div>
         </section>
 
-        <section id="view-messages" class="page-view hidden space-y-4">
+
+        <section id="view-ludo" class="page-view hidden space-y-4">
+          <div id="vl-ludo-root"></div>
+        </section>
+
+<section id="view-messages" class="page-view hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
                 <h2 class="text-xl font-extrabold mb-2">💬 الرسائل</h2>
                 <p class="text-sm text-slate-400 mb-4">هنا هتظهر محادثاتك مع الأصدقاء.</p>
@@ -1185,7 +1233,7 @@
             document.getElementById('nav-user-id').innerText = `ID: ${state.user.id}`;
             document.getElementById('nav-user-avatar').src = state.user.avatar;
             document.getElementById('nav-coins-count').innerText = state.user.coins.toLocaleString();
-            
+
             // بيانات البروفايل
             document.getElementById('profile-name').innerText = state.user.name;
             document.getElementById('profile-id').innerText = `ID: ${state.user.id}`;
@@ -1241,31 +1289,76 @@
         /* عرض الغرف المتاحة */
         function renderRooms() {
             const container = document.getElementById('rooms-list');
+            if (!container) return;
+
             container.innerHTML = '';
 
             state.rooms.forEach(room => {
                 const roomEl = document.createElement('div');
-                roomEl.className = "bg-slate-900 border border-slate-800 hover:border-violet-500/50 p-4 rounded-2xl flex items-center justify-between transition cursor-pointer active:scale-98";
+
+                roomEl.className =
+                    "bg-slate-900 border border-slate-800 " +
+                    "hover:border-violet-500/50 p-3 rounded-2xl " +
+                    "transition cursor-pointer active:scale-[0.99]";
+
                 roomEl.onclick = () => joinRoom(room);
-                roomEl.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-lg font-bold">
-                            🎙️
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-white">${room.title}</h4>
-                            <p class="text-xs text-slate-400">المالك: ${room.host}</p>
-                            <span class="inline-block bg-violet-950 text-violet-300 text-[10px] px-2 py-0.5 rounded-md mt-1 border border-violet-800/40"># ${room.tag}</span>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs text-emerald-400 font-bold flex items-center gap-1 justify-end">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            ${room.online} متصل
-                        </span>
-                        <button class="mt-2 bg-violet-600/30 text-violet-300 text-xs px-3 py-1 rounded-xl border border-violet-500/30">دخول</button>
-                    </div>
-                `;
+
+                const card = document.createElement('div');
+                card.className = "flex items-center gap-3";
+
+                const avatar = document.createElement('div');
+                avatar.className =
+                    "w-16 h-16 shrink-0 rounded-2xl " +
+                    "bg-gradient-to-tr from-violet-600 to-indigo-600 " +
+                    "flex items-center justify-center text-2xl relative";
+                avatar.textContent = "🎙️";
+
+                const avatarBadge = document.createElement('span');
+                avatarBadge.className =
+                    "absolute -bottom-1 -left-1 w-5 h-5 rounded-full " +
+                    "bg-emerald-500 border-2 border-slate-900";
+                avatar.appendChild(avatarBadge);
+
+                const info = document.createElement('div');
+                info.className = "flex-1 min-w-0";
+
+                const title = document.createElement('h4');
+                title.className = "font-bold text-sm text-white truncate";
+                title.textContent = room.title;
+
+                const host = document.createElement('p');
+                host.className = "text-xs text-slate-400 truncate mt-1";
+                host.textContent = "المالك: " + room.host;
+
+                const tag = document.createElement('span');
+                tag.className =
+                    "inline-block bg-violet-950 text-violet-300 " +
+                    "text-[10px] px-2 py-0.5 rounded-md mt-2 " +
+                    "border border-violet-800/40";
+                tag.textContent = "# " + room.tag;
+
+                info.append(title, host, tag);
+
+                const action = document.createElement('div');
+                action.className =
+                    "shrink-0 flex flex-col items-center gap-2";
+
+                const online = document.createElement('span');
+                online.className =
+                    "text-[10px] text-emerald-400 font-bold whitespace-nowrap";
+                online.textContent = "● " + room.online + " متصل";
+
+                const enter = document.createElement('button');
+                enter.type = "button";
+                enter.className =
+                    "bg-violet-600/30 text-violet-300 text-xs " +
+                    "font-bold px-3 py-2 rounded-xl " +
+                    "border border-violet-500/30";
+                enter.textContent = "دخول";
+
+                action.append(online, enter);
+                card.append(avatar, info, action);
+                roomEl.appendChild(card);
                 container.appendChild(roomEl);
             });
         }
@@ -1293,7 +1386,7 @@
             state.seats.forEach((seat, idx) => {
                 const seatBox = document.createElement('div');
                 seatBox.className = "flex flex-col items-center gap-1";
-                
+
                 if (seat.user) {
                     seatBox.innerHTML = `
                         <div onclick="takeSeat(${idx})" class="w-12 h-12 rounded-full border-2 border-violet-500 relative flex items-center justify-center cursor-pointer ${seat.isSpeaking ? 'speaking' : ''}">
@@ -1398,7 +1491,7 @@
         }
 
         /* شحن العملات */
-        
+
         const VODAFONE_CASH_NUMBER = '';
         function selectRechargePack(amount) {
             const input = document.getElementById('recharge-amount');
@@ -1550,5 +1643,7 @@
   window.selectVipLevel(1);
 })();
 </script>
-\n</body>
+
+<script src="games/ludo/ludo.js"></script>
+</body>
 </html>
