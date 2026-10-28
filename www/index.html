@@ -1073,6 +1073,8 @@
                 state.user = session;
                 updateUIState();
                 closeAuthModal();
+                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+                document.getElementById('view-home').classList.remove('hidden');
             } else {
                 state.user = null;
                 document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
@@ -1202,7 +1204,7 @@
             updateUIState();
             closeAuthModal();
             document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-            const rooms = document.getElementById('view-rooms');
+            const rooms = document.getElementById('view-home');
             if (rooms) rooms.classList.remove('hidden');
             document.getElementById('auth-form').reset();
             setAuthMode('login');
